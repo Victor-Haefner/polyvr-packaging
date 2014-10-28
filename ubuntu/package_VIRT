@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=3.80
+root=libvirtuose-dev
+
+rm -rf $root
+mkdir -p $root/DEBIAN
+
+
+# control file
+/bin/cat <<EOM >$root/DEBIAN/control
+Package: $root
+Source: virtuose
+Version: $version-1
+Section: libdevel
+Priority: extra
+Architecture: amd64
+Depends: libc6
+Installed-Size: 250
+Homepage: http://www.haption.com/
+Maintainer: victor haefner <victor.haefner@gmail.com>
+Description: Virtuose API package
+ HAPTION designs, manufactures and sells haptic devices 
+ with professional quality, suited to the needs of its 
+ customers, both industrial and academic.
+ A haptic interface is a computer device, which enables 
+ its user to interact with a software application or with 
+ a virtual object through the sense of touch. It consists 
+ in an articulated mechanical structure with motors and 
+ position sensors, as well as embedded electronics. The 
+ user holds the end-point of the structure in his hand, 
+ and can move it around, both in the real and in the virtual 
+ world on the computer screen. Whenever his virtual hand 
+ makes contact with a digital object, a force value is sent 
+ to the motors, which simulate a real contact.
+EOM
+
+
+# copyright file
+now="$(date +'%d/%m/%Y')"
+mkdir -p $root/usr/share/doc/$root
+/bin/cat <<EOM >$root/usr/share/doc/$root/copyright
+Copyright (C) 2011, HAPTION S.A.
+ * Author: Pascal Louveau
+ * Last modification: 30/09/2011
+
+This package is not offiacially supported from Haption.
+Free and commercial use is kindly granted from Haption.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE MAINTAINER, AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+EOM
+
+# changelog file
+/bin/cat <<EOM >$root/usr/share/doc/$root/changelog.Debian
+$root ($version-1) trusty; urgency=low
+
+  * Packaged virtuose API (Closes: #573859)
+
+ -- Victor Haefner <victor.haefner@gmail.com>  Sun, 05 Oct 2014 22:03:02 +0200
+EOM
+gzip --best $root/usr/share/doc/$root/changelog.Debian
+
+# libraries and header files
+d_usr=$root/usr/
+d_lib=$root/usr/lib/virtuose/
+d_inc=$root/usr/include/virtuose/
+mkdir -p $d_lib
+mkdir -p $d_inc
+
+cp virtuose/virtuoseAPI.h $d_inc
+cp virtuose/linux-64/* $d_lib
+
+find $d_lib -type f -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find $d_usr -type f -exec chmod 644 {} \;
+chown -R root $root
+chgrp -R root $root
+dpkg-deb --build $root && lintian $root.deb

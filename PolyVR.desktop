@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=PolyVR
+Comment=A virtual reality authoring system.
+Exec=Start.sh
+Icon=ressources/gui/logo_icon.png
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;
+StartupNotify=true
+X-GNOME-Bugzilla-Bugzilla=GNOME
+X-GNOME-Bugzilla-Product=polyvr
+X-GNOME-Bugzilla-Component=general
+X-GNOME-Bugzilla-Version=1.0
+X-Ubuntu-Gettext-Domain=polyvr
+Name[en_US]=PolyVR

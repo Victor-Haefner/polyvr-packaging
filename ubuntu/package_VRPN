@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=7.27
+
+rm -rf libvrpn-dev
+mkdir -p libvrpn-dev/DEBIAN
+
+
+# control file
+/bin/cat <<EOM >libvrpn-dev/DEBIAN/control
+Package: libvrpn-dev
+Source: vrpn
+Version: $version-1
+Section: libdevel
+Priority: extra
+Architecture: amd64
+Depends: libc6, libpython2.7
+Installed-Size: 21200
+Homepage: http://www.cs.unc.edu/Research/vrpn/
+Maintainer: victor haefner <victor.haefner@gmail.com>
+Description: Virtual Reality Peripheral Network
+ The Virtual-Reality Peripheral Network (VRPN) is a set of classes within a 
+ library and a set of servers that are designed to implement a network-
+ transparent interface between application programs and the set of physical 
+ devices (tracker, etc.) used in a virtual-reality (VR) system. The idea is 
+ to have a PC or other host at each VR station that controls the peripherals 
+ (tracker, button device, haptic device, analog inputs, sound, etc). 
+ VRPN provides connections between the application and all of the devices 
+ using the appropriate class-of-service for each type of device sharing this 
+ link. The application remains unaware of the network topology. VRPN also 
+ provides an abstraction layer that makes all devices of the same base class 
+ look the same. The current system types are Analog, Button, Dial, ForceDevice,
+ Sound, Text, and Tracker. Each of these abstract a set of semantics for a 
+ certain type of device. There are one or more servers for each type of device,
+ and a client-side class to read values from the device and control its 
+ operation.
+EOM
+
+
+# copyright file
+now="$(date +'%d/%m/%Y')"
+mkdir -p libvrpn-dev/usr/share/doc/libvrpn-dev
+cp VRPN/README.Legal libvrpn-dev/usr/share/doc/libvrpn-dev/copyright
+
+# changelog file
+/bin/cat <<EOM >libvrpn-dev/usr/share/doc/libvrpn-dev/changelog.Debian
+libvrpn-dev ($version-1) trusty; urgency=low
+
+  * Packaged VRPN (Closes: #573859)
+
+ -- Victor Haefner <victor.haefner@gmail.com>  Sun, 05 Oct 2014 22:03:02 +0200
+EOM
+gzip --best libvrpn-dev/usr/share/doc/libvrpn-dev/changelog.Debian
+
+# libraries and header files
+d_usr=libvrpn-dev/usr/
+d_lib=libvrpn-dev/usr/lib/
+d_py=libvrpn-dev/usr/lib/python2.7/dist-packages/
+d_inc=libvrpn-dev/usr/include/vrpn/
+mkdir -p $d_py
+mkdir -p $d_inc
+
+objcopy --strip-debug --strip-unneeded VRPN/build/python/vrpn.so $d_py/vrpn.so
+find VRPN/build -name *.a -exec cp {} $d_lib \;
+find VRPN -name *.h -exec cp {} $d_inc \;
+find $d_usr -type f -exec chmod 644 {} \;
+
+chown -R root libvrpn-dev
+chgrp -R root libvrpn-dev
+dpkg-deb --build libvrpn-dev && lintian libvrpn-dev.deb

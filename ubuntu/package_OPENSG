@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=2.0.0~pre1
+root=libopensg-dev
+
+rm -rf $root
+mkdir -p $root/DEBIAN
+
+
+# control file
+/bin/cat <<EOM >$root/DEBIAN/control
+Package: $root
+Source: opensg
+Version: $version-1
+Section: libdevel
+Priority: extra
+Architecture: amd64
+Depends: libc6, libcollada-dev, libvrpn-dev, libmicrohttpd-dev, libjsoncpp-dev, python-gtkglext1 , python-vte, libvte-dev, libboost-program-options-dev , libboost-thread-dev , libxml++2.6-dev, libbullet-dev, libgtkmm-2.4-dev, libgtkglext1-dev, libglew-dev, libsdl1.2-dev, libgtksourceview2.0-dev, libcgal-dev, libusb-dev, python-numpy, libavcodec-dev, libavformat-dev, libswscale-dev, libqrencode-dev, libudev-dev, python-dev, libcurl4-gnutls-dev, freeglut3-dev, libboost-filesystem-dev, libjpeg-dev
+Installed-Size: 473300
+Homepage: http://www.opensg.org/
+Maintainer: victor haefner <victor.haefner@gmail.com>
+Description: OpenSG development package
+ OpenSG is a portable scenegraph system to create realtime graphics 
+ programs, e.g. for virtual reality applications. It is developed 
+ following Open Source principles ( LGPL) and can be used freely. 
+ It runs on Windows, Linux, Solaris and MacOS X and is based on  
+ OpenGL. It is used in a number of projects and places to do many 
+ different things, all of them cool. :-) 
+EOM
+
+
+# copyright file
+now="$(date +'%d/%m/%Y')"
+mkdir -p $root/usr/share/doc/$root
+cp OpenSG/COPYING $root/usr/share/doc/$root/copyright
+
+# changelog file
+/bin/cat <<EOM >$root/usr/share/doc/$root/changelog.Debian
+$root ($version-1) trusty; urgency=low
+
+  * Packaged OpenSG (Closes: #573859)
+
+ -- Victor Haefner <victor.haefner@gmail.com>  Sun, 05 Oct 2014 22:03:02 +0200
+EOM
+gzip --best $root/usr/share/doc/$root/changelog.Debian
+
+# libraries and header files
+d_usr=$root/usr/
+d_lib=$root/usr/lib
+d_inc=$root/usr/include/OpenSG/
+mkdir -p $d_lib
+mkdir -p $d_inc
+
+find OpenSG/Source -name "*.h" -exec cp {} $d_inc \;
+find OpenSG/Source -name "*.inl" -exec cp {} $d_inc \;
+find OpenSG/build/Source -name "*.h" -exec cp {} $d_inc \;
+cp OpenSG/Source/WindowSystem/X/OSGNativeWindow.h $d_inc
+cp -R OpenSG/build/bin $d_lib/opensg
+rm $root/usr/lib/opensg/simplePluginApp $root/usr/lib/opensg/osg2-config
+find $d_lib -name "*.so.*" -exec chrpath -d {} \; # remove rpaths
+find $d_lib -name "*.so.*" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find $d_usr -type f -exec chmod 644 {} \;
+
+chown -R root $root
+chgrp -R root $root
+dpkg-deb --build $root && lintian $root.deb

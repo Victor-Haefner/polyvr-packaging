@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=3.1750.1738
+root=libcef-dev
+
+rm -rf $root
+mkdir -p $root/DEBIAN
+
+
+# control file
+/bin/cat <<EOM >$root/DEBIAN/control
+Package: $root
+Source: cef
+Version: $version-1
+Section: libdevel
+Priority: extra
+Architecture: amd64
+Depends: libc6
+Installed-Size: 109800
+Homepage: https://code.google.com/p/chromiumembedded/
+Maintainer: victor haefner <victor.haefner@gmail.com>
+Description: CEF development package
+ The Chromium Embedded Framework (CEF) is a simple framework 
+ for embedding Chromium-based browsers in other applications. 
+ Unlike the Chromium project itself, which focuses mainly on 
+ Google Chrome application development, CEF focuses on 
+ facilitating embedded browser use cases in third-party 
+ applications. CEF insulates the user from the underlying 
+ Chromium and Blink code complexity by offering production-
+ quality stable APIs, release branches tracking specific 
+ Chromium releases, and binary distributions. Most features 
+ in CEF have default implementations that provide rich 
+ functionality while requiring little or no integration work 
+ from the user. There are currently over 100 million installed 
+ instances of CEF around the world embedded in products from 
+ a wide range of companies and industries.
+EOM
+
+
+# copyright file
+now="$(date +'%d/%m/%Y')"
+mkdir -p $root/usr/share/doc/$root
+cp CEF/LICENSE $root/usr/share/doc/$root/copyright
+
+# changelog file
+/bin/cat <<EOM >$root/usr/share/doc/$root/changelog.Debian
+$root ($version-1) trusty; urgency=low
+
+  * Packaged CEF (Closes: #573859)
+
+ -- Victor Haefner <victor.haefner@gmail.com>  Sun, 05 Oct 2014 22:03:02 +0200
+EOM
+gzip --best $root/usr/share/doc/$root/changelog.Debian
+
+# libraries and header files
+d_usr=$root/usr/
+d_lib=$root/usr/lib/CEF
+d_inc=$root/usr/include/CEF
+mkdir -p $d_lib
+mkdir -p $d_inc
+
+cp -R CEF/include $d_inc
+cp CEF/*.so $d_lib
+cp CEF/*.a $d_lib
+cp CEF/*.so.0 $d_lib
+
+find $d_lib -type f -exec chrpath -d {} \; # remove rpaths
+find $d_lib -type f -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find $d_usr -type f -exec chmod 644 {} \;
+
+chown -R root $root
+chgrp -R root $root
+dpkg-deb --build $root && lintian $root.deb
