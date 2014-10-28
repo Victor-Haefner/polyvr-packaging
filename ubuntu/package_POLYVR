@@ -57,14 +57,27 @@ $root ($version-1) trusty; urgency=low
 EOM
 gzip --best $root/usr/share/doc/$root/changelog.Debian
 
-# libraries and header files
+# files
 d_usr=$root/usr/
-d_bin=$root/usr/bin
+d_bin=$root/usr/bin/
 mkdir -p $d_bin
 
-objcopy --strip-debug --strip-unneeded $pvr_base/bin/Debug/VRFramework $d_bin/polyvr
+cp ../Start $root/usr/bin/polyvr
+objcopy --strip-debug --strip-unneeded $pvr_base/bin/Debug/VRFramework $d_bin/polyvr-bin
 find $d_usr -type f -exec chmod 644 {} \;
 chmod 755 $d_bin/*
+
+# ressources
+d_res=$root/usr/share/$root
+mkdir -p $d_res/examples/
+mkdir -p $d_res/setup/
+cp ../../polyvr/examples/*.xml $d_res/examples/
+cp ../../polyvr/setup/Desktop.xml $d_res/setup/
+cp -R ../../polyvr/ressources $d_res/
+cp -R ../../polyvr/shader $d_res/
+cp -R ../../polyvr/doc $d_res/
+cp -R ../../polyvr/extras $d_res/
+find $d_res -name "*~" -exec rm {} \;
 
 chown -R root $root
 chgrp -R root $root
