@@ -24,20 +24,6 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR
 
-# auxilliary function to add a ppa only if it exists
-add_ppa() {
-  grep -h "^deb.*$1" /etc/apt/sources.list.d/* > /dev/null 2>&1
-  if [ $? -ne 0 ]
-  then
-    echo "Adding ppa:$1"
-    add-apt-repository -y ppa:$1
-    return 0
-  fi
-
-  echo "ppa:$1 already exists"
-  return 1
-}
-
 if [ $JOB == "ALL" ]; then
 #add_ppa irie/blender #Blender
 #add_ppa blk/ppa #Bullets
@@ -71,7 +57,7 @@ cd $DIR
 if [ ! -e collada-dom/build ]; then
   su $SUDO_USER -c "mkdir -p collada-dom/build"
   cd collada-dom/build
-  cmake .. && make -j4 && make install
+  cmake .. && make -j4
 fi
 fi
 
@@ -79,15 +65,14 @@ fi
 if [ $JOB == "ALL" ] || [ $JOB == "VRPN" ]; then
 cd $DIR
 if [ ! -e VRPN/.git ]; then
-  cd ../../../
-  su $SUDO_USER -c "git submodule update --init $DIR/VRPN"
+  su $SUDO_USER -c "git clone git://git.cs.unc.edu/vrpn.git $DIR/VRPN"
 fi
 
 cd $DIR
 if [ ! -e VRPN/build ]; then
   su $SUDO_USER -c "mkdir -p VRPN/build"
   cd VRPN/build
-  cmake .. && make -j4 && make install
+  cmake .. && make -j4
 fi
 fi
 
@@ -96,7 +81,7 @@ if [ $JOB == "ALL" ] || [ $JOB == "OSG" ]; then
 cd $DIR
 if [ ! -e OpenSG/.git ]; then
   cd ../../../
-  su $SUDO_USER -c "git submodule update --init $DIR/OpenSG"
+  su $SUDO_USER -c "git clone git://git.code.sf.net/p/opensg/code $DIR/OpenSG"
 fi
 
 # install OpenSG
@@ -104,11 +89,6 @@ cd $DIR
 if [ ! -e OpenSG/build ]; then
   su $SUDO_USER -c "mkdir OpenSG/build"
   cd OpenSG/build
-  cmake .. -DOSGBUILD_TESTS=OFF && make -j4 && make install
-  #tutorials
-  cd ../Examples/Tutorial
-  su $SUDO_USER -c "mkdir build"
-  cd build
-  cmake -DCMAKE_MODULE_PATH=/usr/local/share/OpenSG/cmake -DOPENSG_LIBRARY_DIR=/usr/local/lib64/debug .. && make
+  cmake .. -DOSGBUILD_TESTS=OFF && make -j4
 fi
 fi
