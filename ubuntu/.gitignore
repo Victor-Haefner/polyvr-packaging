@@ -1,1 +1,4 @@
 *.deb
+OpenSG
+VRPN
+collada-dom/build
