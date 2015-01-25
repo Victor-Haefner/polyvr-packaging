@@ -66,13 +66,14 @@ if [ $JOB == "ALL" ] || [ $JOB == "VRPN" ]; then
 cd $DIR
 if [ ! -e VRPN/.git ]; then
   su $SUDO_USER -c "git clone git://git.cs.unc.edu/vrpn.git $DIR/VRPN"
+  su $SUDO_USER -c "cd $DIR/VRPN && git submodule update --init"
 fi
 
 cd $DIR
 if [ ! -e VRPN/build ]; then
   su $SUDO_USER -c "mkdir -p VRPN/build"
   cd VRPN/build
-  cmake .. && make -j4
+  cmake -DVRPN_USE_HID=TRUE -DHIDAPI_INCLUDE_DIR="/usr/include/hidapi" -DHIDAPI_LIBRARY="/usr/lib/x86_64-linux-gnu/libhidapi-libusb.so" .. && make -j4
 fi
 fi
 

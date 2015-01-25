@@ -24,6 +24,8 @@ libgtksourceview2.0-dev
 python-mysqldb
 libcgal-dev
 libusb-dev
+libusb-1.0-0-dev
+libhidapi-dev
 python-numpy
 libavcodec-dev
 libavformat-dev
