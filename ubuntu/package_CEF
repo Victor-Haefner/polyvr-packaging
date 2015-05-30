@@ -46,7 +46,7 @@ EOM
 # copyright file
 now="$(date +'%d/%m/%Y')"
 mkdir -p $root/usr/share/doc/$root
-cp CEF/LICENSE $root/usr/share/doc/$root/copyright
+cp CEF/LICENSE.txt $root/usr/share/doc/$root/copyright
 
 # changelog file
 /bin/cat <<EOM >$root/usr/share/doc/$root/changelog.Debian
