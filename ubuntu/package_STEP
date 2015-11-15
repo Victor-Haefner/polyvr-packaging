@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=0.8
+root=libstepcode-dev
+
+rm -rf $root
+mkdir -p $root/DEBIAN
+
+
+# control file
+/bin/cat <<EOM >$root/DEBIAN/control
+Package: $root
+Source: stepcode
+Version: $version-1
+Section: libdevel
+Priority: extra
+Architecture: amd64
+Depends:
+Installed-Size: 26600
+Homepage: http://stepcode.org/
+Maintainer: victor haefner <victor.haefner@gmail.com>
+Description: STEPcode development package
+ STEPcode is a framework to develop interfaces 
+ for EXPRESS schema exchange files. This package 
+ provides the capabilitites only for schema ap214e3.
+EOM
+
+
+# copyright file
+now="$(date +'%d/%m/%Y')"
+mkdir -p $root/usr/share/doc/$root
+cp STEPcode/COPYING $root/usr/share/doc/$root/copyright
+
+# changelog file
+/bin/cat <<EOM >$root/usr/share/doc/$root/changelog.Debian
+$root ($version-1) trusty; urgency=low
+
+  * Packaged STEPcode (Closes: #573859)
+
+ -- Victor Haefner <victor.haefner@gmail.com>  Sun, 05 Oct 2014 22:03:02 +0200
+EOM
+gzip --best $root/usr/share/doc/$root/changelog.Debian
+
+# libraries and header files
+d_usr=$root/usr/
+d_lib=$root/usr/lib/STEPcode/
+d_inc=$root/usr/include/STEPcode/
+mkdir -p $d_lib
+mkdir -p $d_inc
+
+find STEPcode -name "*.h" -exec cp {} $d_inc \;
+find STEPcode -name "*.so" -exec cp {} $d_lib \;
+find $d_lib -name "*.so" -exec chrpath -d {} \; # remove rpaths
+find $d_lib -name "*.so" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find $d_usr -type f -exec chmod 644 {} \;
+
+chown -R root $root
+chgrp -R root $root
+dpkg-deb --build $root && lintian $root.deb

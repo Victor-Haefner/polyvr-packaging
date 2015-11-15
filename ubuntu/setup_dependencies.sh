@@ -81,11 +81,10 @@ fi
 if [ $JOB == "ALL" ] || [ $JOB == "OSG" ]; then
 cd $DIR
 if [ ! -e OpenSG/.git ]; then
-  cd ../../../
   su $SUDO_USER -c "git clone git://git.code.sf.net/p/opensg/code $DIR/OpenSG"
 fi
 
-# install OpenSG
+# compile OpenSG
 cd $DIR
 if [ ! -e OpenSG/build ]; then
   su $SUDO_USER -c "mkdir OpenSG/build"
@@ -93,3 +92,24 @@ if [ ! -e OpenSG/build ]; then
   cmake .. -DOSGBUILD_TESTS=OFF && make -j4
 fi
 fi
+
+git clone https://github.com/stepcode/stepcode.git stepcode
+
+# get STEPcode source from git
+if [ $JOB == "ALL" ] || [ $JOB == "STEP" ]; then
+cd $DIR
+if [ ! -e STEPcode/.git ]; then
+  su $SUDO_USER -c "git clone https://github.com/stepcode/stepcode.git $DIR/STEPcode"
+fi
+
+# compile STEPcode
+cd $DIR
+if [ ! -e STEPcode/build ]; then
+  su $SUDO_USER -c "mkdir STEPcode/build"
+  cd STEPcode/build
+  cmake .. -DSC_BUILD_SCHEMAS=ap214e3 && make -j4
+fi
+fi
+
+
+
