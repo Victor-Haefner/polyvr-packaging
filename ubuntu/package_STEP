@@ -51,13 +51,25 @@ gzip --best $root/usr/share/doc/$root/changelog.Debian
 d_usr=$root/usr/
 d_lib=$root/usr/lib/STEPcode/
 d_inc=$root/usr/include/STEPcode/
+d_inc_t=$root/usr/include/STEPcode/type
+d_inc_e=$root/usr/include/STEPcode/entity
 mkdir -p $d_lib
 mkdir -p $d_inc
+mkdir -p $d_inc_t
+mkdir -p $d_inc_e
 
-find STEPcode -name "*.h" -exec cp {} $d_inc \;
-find STEPcode -name "*.so" -exec cp {} $d_lib \;
-find $d_lib -name "*.so" -exec chrpath -d {} \; # remove rpaths
-find $d_lib -name "*.so" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find STEPcode/src -name "*.h" -exec cp {} $d_inc \;
+find STEPcode/build/include -name "*.h" -exec cp {} $d_inc \;
+cp STEPcode/build/schemas/sdai_ap214e3/*.h $d_inc
+cp STEPcode/build/schemas/sdai_ap214e3/type/*.h $d_inc_t
+cp STEPcode/build/schemas/sdai_ap214e3/entity/*.h $d_inc_e
+cp STEPcode/include/*.h $d_inc
+cp -r STEPcode/include/express $d_inc/
+cp -r STEPcode/include/exppp $d_inc/
+cp STEPcode/src/clstepcore/complexSupport.h $d_inc/
+find STEPcode -name "*.so*" -exec cp {} $d_lib \;
+find $d_lib -name "*.so*" -exec chrpath -d {} \; # remove rpaths
+find $d_lib -name "*.so*" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
 find $d_usr -type f -exec chmod 644 {} \;
 
 chown -R root $root
