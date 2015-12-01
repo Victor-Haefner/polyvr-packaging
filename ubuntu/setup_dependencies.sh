@@ -93,8 +93,6 @@ if [ ! -e OpenSG/build ]; then
 fi
 fi
 
-git clone https://github.com/stepcode/stepcode.git stepcode
-
 # get STEPcode source from git
 if [ $JOB == "ALL" ] || [ $JOB == "STEP" ]; then
 cd $DIR
