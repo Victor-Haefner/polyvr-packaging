@@ -35,3 +35,4 @@ libqrencode-dev
 libudev-dev
 dpkg-dev
 libao-dev
+liblapacke-dev
