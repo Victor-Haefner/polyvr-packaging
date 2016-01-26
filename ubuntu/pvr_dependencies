@@ -1,4 +1,4 @@
-libvrpn-dev
+gdebi-core
 libmicrohttpd-dev
 libjsoncpp-dev
 python-gtkglext1 
@@ -36,3 +36,4 @@ libudev-dev
 dpkg-dev
 libao-dev
 liblapacke-dev
+libraptor2-dev
