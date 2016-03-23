@@ -26,3 +26,4 @@ libcurl4-gnutls-dev
 freeglut3-dev
 libboost-filesystem-dev
 libjpeg-dev
+libbullet-extras-dev

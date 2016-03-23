@@ -37,3 +37,4 @@ dpkg-dev
 libao-dev
 liblapacke-dev
 libraptor2-dev
+libbullet-extras-dev
