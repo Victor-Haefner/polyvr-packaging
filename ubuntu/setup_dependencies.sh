@@ -57,7 +57,7 @@ cd $DIR
 if [ ! -e collada-dom/build ]; then
   su $SUDO_USER -c "mkdir -p collada-dom/build"
   cd collada-dom/build
-  cmake .. && make -j4
+  cmake -DCMAKE_BUILD_TYPE=Release .. && make -j4 && make DESTDIR=./install install
 fi
 fi
 
@@ -73,7 +73,7 @@ cd $DIR
 if [ ! -e VRPN/build ]; then
   su $SUDO_USER -c "mkdir -p VRPN/build"
   cd VRPN/build
-  cmake -DVRPN_USE_HID=TRUE -DHIDAPI_INCLUDE_DIR="/usr/include/hidapi" -DHIDAPI_LIBRARY="/usr/lib/x86_64-linux-gnu/libhidapi-libusb.so" .. && make -j4
+  cmake -DCMAKE_BUILD_TYPE=Release -DVRPN_USE_HID=TRUE -DHIDAPI_INCLUDE_DIR="/usr/include/hidapi" -DHIDAPI_LIBRARY="/usr/lib/x86_64-linux-gnu/libhidapi-libusb.so" .. && make -j4
 fi
 fi
 
@@ -89,7 +89,12 @@ cd $DIR
 if [ ! -e OpenSG/build ]; then
   su $SUDO_USER -c "mkdir OpenSG/build"
   cd OpenSG/build
-  cmake .. -DOSGBUILD_TESTS=OFF && make -j4
+  sed -i 's/ProgramChunkStore::const_iterator/ProgramChunkStore::iterator/g' ../Source/System/State/Base/OSGStateOverride.cpp
+  sed -i 's/const SSurface &operator=(const SSurface &rhs);//g' ../Source/System/NodeCores/Drawables/Nurbs/Internal/OSGNurbsPatchSurface.h
+  sed -i 's/void operator =(const Info &rhs);//g' ../Source/System/GraphOp/OSGDotFileGeneratorGraphOp.h
+  sed -i 's/const Server &operator =(const Server &rhs);//g' ../Source/System/Cluster/Window/BalancedMultiWindow/OSGBalancedMultiWindow.h
+  sed -i 's/void operator =(const JointInfo &other);//g' ../Source/System/FileIO/Collada/OSGColladaController.h
+  cmake -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 .. && make -j4
 fi
 fi
 
@@ -105,7 +110,7 @@ cd $DIR
 if [ ! -e STEPcode/build ]; then
   su $SUDO_USER -c "mkdir STEPcode/build"
   cd STEPcode/build
-  cmake .. -DSC_BUILD_SCHEMAS=ap214e3 && make -j4
+  cmake -DSC_BUILD_SCHEMAS=ap214e3  -DCMAKE_BUILD_TYPE=Release .. && make -j4
 fi
 fi
 

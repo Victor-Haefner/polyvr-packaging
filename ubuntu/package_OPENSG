@@ -21,7 +21,7 @@ Version: $version-1
 Section: libdevel
 Priority: extra
 Architecture: amd64
-Depends: libc6, libcollada-dev, libboost-program-options1.54.0, libboost-thread1.54.0, libboost-filesystem1.54.0, libglew1.10, libsdl1.2debian, libcgal10, libusb-1.0-0, python, freeglut3, libjpeg8, libgdal1h, libcg, libcggl, libopenexr21
+Depends: libcollada-dev
 Installed-Size: 473300
 Homepage: http://www.opensg.org/
 Maintainer: victor haefner <victor.haefner@gmail.com>
