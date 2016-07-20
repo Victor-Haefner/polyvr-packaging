@@ -1,0 +1,14 @@
+Package: libvive-dev
+Source: vive
+Version: 0.0
+Section: libdevel
+Priority: extra
+Architecture: amd64
+Depends:
+Installed-Size: 26600
+Homepage: https://github.com/ValveSoftware/openvr
+Maintainer: victor haefner <victor.haefner@gmail.com>
+Description: Vive tracking development package
+ This package combines binaries and libraries 
+ from steamvr and openvr to provide an interface
+ to the tracking system of the Vive HMD.

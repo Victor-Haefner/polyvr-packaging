@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=0.0
+root=libvive-dev
+
+find $root -name "*.so*" -exec chrpath -d {} \; # remove rpaths
+find $root -name "*.so*" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find $root -type f -exec chmod 644 {} \;
+chmod 755 $root/usr/bin
+
+chown -R root $root
+chgrp -R root $root
+dpkg-deb --build $root && lintian $root.deb
