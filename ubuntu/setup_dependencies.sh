@@ -81,7 +81,8 @@ fi
 if [ $JOB == "ALL" ] || [ $JOB == "OSG" ]; then
 cd $DIR
 if [ ! -e OpenSG/.git ]; then
-  su $SUDO_USER -c "git clone git://git.code.sf.net/p/opensg/code $DIR/OpenSG"
+  #su $SUDO_USER -c "git clone git://git.code.sf.net/p/opensg/code $DIR/OpenSG"
+  su $SUDO_USER -c "git clone https://github.com/Victor-Haefner/OpenSGDevMaster.git $DIR/OpenSG"
 fi
 
 # compile OpenSG
