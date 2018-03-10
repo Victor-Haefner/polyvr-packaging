@@ -74,6 +74,16 @@ if [ ! -e OpenSG/build ]; then
   cd OpenSG/build
   cmake -G "Visual Studio 15 2017 Win64" -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DGLUT_INCLUDE_DIR="/c/freeglut" -DGLUT_glut_LIBRARY_RELEASE="/c/freeglut/freeglut.lib" -DZLIB_INCLUDE_DIR="/c/zlib" -DZLIB_LIBRARY_RELEASE="/c/zlib/zlib.lib" -DBoost_FILESYSTEM_LIBRARY_RELEASE="/c/boost/lib64-msvc-14.1/boost_filesystem-vc141-mt-1_65_1.lib" -DBoost_SYSTEM_LIBRARY_RELEASE="/c/boost/lib64-msvc-14.1/boost_system-vc141-mt-1_65_1.lib" ..
   cmake --build . --config Release
+  d_inc=/c/opensg/include/OpenSG/
+  mkdir -p $d_inc
+  
+  cd $DIR
+  find OpenSG/Source -name "*.h" -exec cp {} $d_inc \;
+  find OpenSG/Source -name "*.inl" -exec cp {} $d_inc \;
+  find OpenSG/build/Source -name "*.h" -exec cp {} $d_inc \;
+  cp OpenSG/Source/WindowSystem/X/OSGNativeWindow.h $d_inc
+  cp -r OpenSG/build/bin/Release/* /c/opensg/
+  
 fi
 
 
