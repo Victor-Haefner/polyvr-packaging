@@ -38,3 +38,7 @@ libao-dev
 liblapacke-dev
 libraptor2-dev
 libbullet-extras-dev
+liboce-foundation-dev
+liboce-modeling-dev
+liboce-ocaf-dev
+liboce-visualization-dev
