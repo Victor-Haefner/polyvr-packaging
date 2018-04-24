@@ -115,5 +115,19 @@ if [ ! -e STEPcode/build ]; then
 fi
 fi
 
+# get IFC source from git
+if [ $JOB == "ALL" ] || [ $JOB == "IFC" ]; then
+cd $DIR
+if [ ! -e IFC/.git ]; then
+  su $SUDO_USER -c "git clone https://github.com/Victor-Haefner/IfcOpenShell.git $DIR/IFC"
+fi
 
+# compile IFC
+cd $DIR
+if [ ! -e IFC/build ]; then
+  su $SUDO_USER -c "mkdir IFC/build"
+  cd IFC/build
+  cmake ../cmake -DOCC_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu/ -DCOLLADA_SUPPORT=0 -DBUILD_IFCPYTHON=0 -DPCRE_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu/ && make -j4
+fi
+fi
 
