@@ -56,8 +56,8 @@ mkdir -p $d_inc
 mkdir -p $d_inc_p
 mkdir -p $d_inc_g
 
-cp IFC/src/ifcgeom/*.h $d_inc_p/
-cp IFC/src/ifcparse/*.h $d_inc_g/
+cp IFC/src/ifcgeom/*.h $d_inc_g/
+cp IFC/src/ifcparse/*.h $d_inc_p/
 find IFC -name "*.a" -exec cp {} $d_lib \;
 find $d_lib -name "*.a" -exec chrpath -d {} \; # remove rpaths
 find $d_lib -name "*.a" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
