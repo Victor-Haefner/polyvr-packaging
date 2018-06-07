@@ -4,7 +4,7 @@ polyvr-packaging
 Packaging scripts for PolyVR and dependencies 
 for different platforms.
 
-Currently we support only Ubuntu 14.04 LTS.
+Currently we support only Ubuntu LTS.
 Ports to Windows and Mac are on our roadmap.
 
 The scripts in this repository are ment for 
