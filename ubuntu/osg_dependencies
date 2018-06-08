@@ -21,3 +21,5 @@ libxmu-dev
 libboost-thread-dev 
 libcolladadom-dev 
 libgdal1-dev
+libgdal-dev
+libqhull-dev

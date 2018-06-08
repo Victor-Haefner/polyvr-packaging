@@ -65,7 +65,8 @@ fi
 if [ $JOB == "ALL" ] || [ $JOB == "VRPN" ]; then
 cd $DIR
 if [ ! -e VRPN/.git ]; then
-  su $SUDO_USER -c "git clone git://git.cs.unc.edu/vrpn.git $DIR/VRPN"
+  #su $SUDO_USER -c "git clone git://git.cs.unc.edu/vrpn.git $DIR/VRPN"
+  su $SUDO_USER -c "git clone https://github.com/vrpn/vrpn.git $DIR/VRPN"
   su $SUDO_USER -c "cd $DIR/VRPN && git submodule update --init"
 fi
 
@@ -90,12 +91,7 @@ cd $DIR
 if [ ! -e OpenSG/build ]; then
   su $SUDO_USER -c "mkdir OpenSG/build"
   cd OpenSG/build
-  sed -i 's/ProgramChunkStore::const_iterator/ProgramChunkStore::iterator/g' ../Source/System/State/Base/OSGStateOverride.cpp
-  sed -i 's/const SSurface &operator=(const SSurface &rhs);//g' ../Source/System/NodeCores/Drawables/Nurbs/Internal/OSGNurbsPatchSurface.h
-  sed -i 's/void operator =(const Info &rhs);//g' ../Source/System/GraphOp/OSGDotFileGeneratorGraphOp.h
-  sed -i 's/const Server &operator =(const Server &rhs);//g' ../Source/System/Cluster/Window/BalancedMultiWindow/OSGBalancedMultiWindow.h
-  sed -i 's/void operator =(const JointInfo &other);//g' ../Source/System/FileIO/Collada/OSGColladaController.h
-  cmake -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 .. && make -j4
+  cmake -DOSG_ENABLE_QHULL=OFF -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 .. && make -j4
 fi
 fi
 

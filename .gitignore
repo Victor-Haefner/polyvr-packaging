@@ -2,3 +2,4 @@
 windows/FreeGLUT
 windows/OpenSG
 windows/zlib
+ubuntu/libopensg-dev
