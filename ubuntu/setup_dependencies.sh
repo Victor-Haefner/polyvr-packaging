@@ -107,7 +107,7 @@ cd $DIR
 if [ ! -e STEPcode/build ]; then
   su $SUDO_USER -c "mkdir STEPcode/build"
   cd STEPcode/build
-  cmake -DSC_BUILD_SCHEMAS=ap214e3  -DCMAKE_BUILD_TYPE=Release .. && make -j4
+  cmake -DSC_BUILD_SCHEMAS=ap214e3  -DCMAKE_BUILD_TYPE=Release .. && make -j4 && make sdai_ap214e3
 fi
 fi
 
