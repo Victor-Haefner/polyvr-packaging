@@ -127,3 +127,18 @@ if [ ! -e IFC/build ]; then
 fi
 fi
 
+# get OPCUA source from git
+if [ $JOB == "ALL" ] || [ $JOB == "OPCUA" ]; then
+cd $DIR
+if [ ! -e OPCUA/.git ]; then
+  su $SUDO_USER -c "git clone https://github.com/Victor-Haefner/freeopcua.git $DIR/OPCUA"
+fi
+
+# compile OPCUA
+cd $DIR
+if [ ! -e OPCUA/build ]; then
+  su $SUDO_USER -c "mkdir OPCUA/build"
+  cd OPCUA/build
+  cmake .. && make -j4
+fi
+fi
