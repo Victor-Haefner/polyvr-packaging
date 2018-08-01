@@ -24,7 +24,7 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR
 
-if [ $JOB == "ALL" ]; then
+if [ $JOB == "ALL" ] || [ $JOB == "LIBS" ]; then
 #add_ppa irie/blender #Blender
 #add_ppa blk/ppa #Bullets
 #add_ppa panda3d/ppa #FMOD
