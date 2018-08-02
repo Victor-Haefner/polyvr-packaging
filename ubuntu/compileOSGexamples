@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd OpenSG/Examples/Tutorial
+mkdir build
+cd build
+rm -rf ./* && cmake .. -DCMAKE_MODULE_PATH='/usr/local/share/OpenSG/cmake' -DCMAKE_PREFIX_PATH='/usr/local/share/OpenSG' -DOPENSG_LIBRARY_DIR='/usr/local/lib64'
+make -j4
