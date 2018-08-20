@@ -139,6 +139,6 @@ cd $DIR
 if [ ! -e OPCUA/build ]; then
   su $SUDO_USER -c "mkdir OPCUA/build"
   cd OPCUA/build
-  cmake .. && make -j4
+  cmake -DSSL_SUPPORT_MBEDTLS=OFF .. && make -j4
 fi
 fi
