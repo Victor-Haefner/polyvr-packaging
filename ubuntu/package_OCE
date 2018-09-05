@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=0.8
+root=liboce-dev
+
+rm -rf $root
+mkdir -p $root/DEBIAN
+
+
+# control file
+/bin/cat <<EOM >$root/DEBIAN/control
+Package: $root
+Source: oce
+Version: $version-1
+Section: libdevel
+Priority: extra
+Architecture: amd64
+Depends:
+Installed-Size: 26600
+Homepage: https://github.com/Victor-Haefner/oce
+Maintainer: victor haefner <victor.haefner@gmail.com>
+Description: OpenCASCADE development package
+ OpenCASCADE development package
+EOM
+
+
+# copyright file
+now="$(date +'%d/%m/%Y')"
+mkdir -p $root/usr/share/doc/$root
+#cp oce/COPYING $root/usr/share/doc/$root/copyright
+
+# changelog file
+/bin/cat <<EOM >$root/usr/share/doc/$root/changelog.Debian
+$root ($version-1) trusty; urgency=low
+
+  * Packaged OpenCASCADE (Closes: #573859)
+
+ -- Victor Haefner <victor.haefner@gmail.com>  Sun, 05 Oct 2014 22:03:02 +0200
+EOM
+gzip --best $root/usr/share/doc/$root/changelog.Debian
+
+# libraries and header files
+d_usr=$root/usr/
+d_lib=$root/usr/lib/OCE/
+d_inc=$root/usr/include/OCE/
+mkdir -p $d_lib
+mkdir -p $d_inc
+
+find oce -name "*.h" -exec cp {} $d_inc \;
+find oce -name "*.lxx" -exec cp {} $d_inc \;
+find oce -name "*.hxx" -exec cp {} $d_inc \;
+find oce -name "*.so*" -exec cp {} $d_lib \;
+find $d_lib -name "*.so*" -exec chrpath -d {} \; # remove rpaths
+find $d_lib -name "*.so*" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find $d_usr -type f -exec chmod 644 {} \;
+
+chown -R root $root
+chgrp -R root $root
+dpkg-deb --build $root && lintian $root.deb

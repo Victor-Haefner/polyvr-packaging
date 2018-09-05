@@ -112,6 +112,22 @@ fi
 fi
 
 # get IFC source from git
+if [ $JOB == "ALL" ] || [ $JOB == "OCE" ]; then
+cd $DIR
+if [ ! -e oce/.git ]; then
+  su $SUDO_USER -c "git clone https://github.com/Victor-Haefner/oce.git $DIR/oce"
+fi
+
+# compile OCE
+cd $DIR
+if [ ! -e oce/build ]; then
+  su $SUDO_USER -c "mkdir oce/build"
+  cd oce/build
+  cmake .. && make -j4
+fi
+fi
+
+# get IFC source from git
 if [ $JOB == "ALL" ] || [ $JOB == "IFC" ]; then
 cd $DIR
 if [ ! -e IFC/.git ]; then
@@ -123,7 +139,7 @@ cd $DIR
 if [ ! -e IFC/build ]; then
   su $SUDO_USER -c "mkdir IFC/build"
   cd IFC/build
-  cmake ../cmake -DOCC_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu/ -DCOLLADA_SUPPORT=0 -DBUILD_IFCPYTHON=0 -DPCRE_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu/ && make -j4
+  cmake ../cmake -DOCC_LIBRARY_DIR=/usr/lib/OCE/ -DOCC_INCLUDE_DIR=/usr/include/OCE -DCOLLADA_SUPPORT=0 -DBUILD_IFCPYTHON=0 -DPCRE_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu/ && make -j4
 fi
 fi
 

@@ -1,6 +1,10 @@
 *.deb
+*.swp
+lib*-dev
 OpenSG
 VRPN
 collada-dom/build
 STEPcode
 IFC
+OPCUA
+oce
