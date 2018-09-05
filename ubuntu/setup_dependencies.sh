@@ -24,7 +24,7 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR
 
-if [ $JOB == "ALL" ]; then
+if [ $JOB == "ALL" ] || [ $JOB == "LIBS" ]; then
 #add_ppa irie/blender #Blender
 #add_ppa blk/ppa #Bullets
 #add_ppa panda3d/ppa #FMOD
@@ -91,7 +91,7 @@ cd $DIR
 if [ ! -e OpenSG/build ]; then
   su $SUDO_USER -c "mkdir OpenSG/build"
   cd OpenSG/build
-  cmake -DOSG_ENABLE_QHULL=OFF -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 .. && make -j4
+  cmake -DOSG_ENABLE_QHULL=OFF -DOSG_SHADER_CACHE_MODE=0 -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 .. && make -j4
 fi
 fi
 
@@ -155,6 +155,6 @@ cd $DIR
 if [ ! -e OPCUA/build ]; then
   su $SUDO_USER -c "mkdir OPCUA/build"
   cd OPCUA/build
-  cmake .. && make -j4
+  cmake -DSSL_SUPPORT_MBEDTLS=OFF .. && make -j4
 fi
 fi
