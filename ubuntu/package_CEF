@@ -66,9 +66,9 @@ mkdir -p $d_lib
 mkdir -p $d_inc
 
 cp -R CEF/include $d_inc
-cp CEF/*.so $d_lib
-cp CEF/*.a $d_lib
-cp CEF/*.so.0 $d_lib
+cp CEF/Release/*.so $d_lib
+cp CEF/build/libcef_dll_wrapper/libcef_dll_wrapper.a $d_lib
+
 
 find $d_lib -type f -exec chrpath -d {} \; # remove rpaths
 find $d_lib -type f -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
