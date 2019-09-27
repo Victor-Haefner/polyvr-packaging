@@ -20,8 +20,7 @@ fi
 
 gdebi -n libstep-dev.deb
 gdebi -n liboce-dev.deb
-gdebi -n libcef-dev.deb
-gdebi -n libopcua-dev.deb
+gdebi -n libfreeopcua-dev.deb
 gdebi -n libcollada-dev.deb
 gdebi -n libifc-dev.deb
 gdebi -n libvrpn-dev.deb
