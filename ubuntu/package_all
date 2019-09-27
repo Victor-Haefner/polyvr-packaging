@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+#./package_VIVE
+#./package_VIRT
+./package_STEP
+./package_OCE
+#./package_POLYVR
+./package_OPENSG true
+#./package_CEF
+./package_OPCUA
+./package_COLLADA
+./package_IFC
+./package_VRPN
+
+gdebi -n libstep-dev.deb
+gdebi -n liboce-dev.deb
+gdebi -n libcef-dev.deb
+gdebi -n libopcua-dev.deb
+gdebi -n libcollada-dev.deb
+gdebi -n libifc-dev.deb
+gdebi -n libvrpn-dev.deb
+gdebi -n libopensg-dev.deb
+
+
+

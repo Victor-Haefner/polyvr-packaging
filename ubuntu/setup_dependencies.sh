@@ -111,7 +111,7 @@ if [ ! -e STEPcode/build ]; then
 fi
 fi
 
-# get IFC source from git
+# get OCE source from git
 if [ $JOB == "ALL" ] || [ $JOB == "OCE" ]; then
 cd $DIR
 if [ ! -e oce/.git ]; then
