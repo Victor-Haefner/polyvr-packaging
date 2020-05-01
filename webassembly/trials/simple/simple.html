@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="shortcut icon" href="#"> <!-- removes favicon.ico bullshit -->
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+
+<body>
+	<script type='text/javascript' src="simple.js"></script>
+
+	<script type='text/javascript'>
+		FS.mkdir('/data');
+		FS.createPreloadedFile('/data/', 'dat2', 'data/dat2', true, true);
+
+		//FS.mkdir('/data');
+		//FS.mount(WORKERFS, { blobs: [], files: ['dat2'] }, '/data');
+
+		Module.onRuntimeInitialized = function() {
+			console.log(Module);
+			console.log(Module.exports);
+			//var ve = document.getElementById('Veditor');
+			//ve.innerHTML = Module._Z15getVertexShaderv();
+			//console.log(Module.__Z3fibi(30));
+		}
+
+		function updateEditor() {
+			var e = document.getElementById('editor');
+			e.value = Module.UTF8ToString( _getVertexShader() );
+		}
+
+		function sendMessage() {
+			var e = document.getElementById('editor');
+			var ptr = allocate(intArrayFromString(e.value), 'i8', ALLOC_NORMAL);
+			_setVertexShader(ptr);
+			_free(ptr); 
+		}
+
+		function scanDir(path, onGet) {
+			console.log('scanDir '+path);
+			req = new XMLHttpRequest();
+			req.onreadystatechange = function() {
+				if(req.readyState == 4) {
+					if (req.status === 200) {
+						files = req.responseText.split('|');
+						for (var i in files) {
+			
+							console.log(files[i]);
+						}
+						//onGet(files);
+					}
+				}
+			}
+			req.open("GET", 'scanDir.php?path='+path, true);
+			req.send(null);
+		}
+
+		scanDir('data');
+	</script>
+
+	<p>Text Area:</p>
+	<textarea id='editor' rows = "5" cols = "60" name = "description"></textarea><br>
+	<button onclick="sendMessage()">send</button>
+	<button onclick='updateEditor()'>update</button>
+</body>
+
+</html>

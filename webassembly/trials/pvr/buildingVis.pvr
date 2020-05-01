@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scene base_name="buildingVis" name_space="Scene" name_suffix="0" persistency="666">
+  <Objects>
+    <Object base_name="Root" name_space="__global__" name_suffix="0" persistency="666" pickable="0" type="Object" visible="4294967295">
+      <Object ambient="0.3 0.3 0.3 1" base_name="light" beacon="Headlight_beacon" diffuse="1 1 1 1" lightType="directional" name_space="__global__" name_suffix="0" on="1" persistency="666" photometricMap="" pickable="0" shadow="0" shadowColor="0.1 0.1 0.1 1" shadowMapRes="2048" shadowVolume="1e+06 1e+06 1e+06 -1e+06 -1e+06 -1e+06 1" specular="0.1 0.1 0.1 1" type="Light" visible="4294967295">
+        <Object at="0.2 -1 -0.5" at_dir="0" base_name="Headlight_beacon" from="0 0 0" light="light" name_space="__global__" name_suffix="0" persistency="666" pickable="0" scale="1 1 1" type="LightBeacon" up="0 1 0" visible="4294967295">
+          <constraint persistency="666"/>
+        </Object>
+        <Object accept_root="1" aspect="1" at="0.880337 12.0455 1.95448" at_dir="0" base_name="Default" far="512" fov="1.0472" from="-0.243733 25.6476 21.4231" name_space="__global__" name_suffix="0" near="0.1" orthoSize="100" persistency="666" pickable="0" scale="1 1 1" type="Camera" up="0 1 0" visible="4294967295">
+          <constraint persistency="666"/>
+        </Object>
+      </Object>
+    </Object>
+  </Objects>
+  <Cameras activeCam="Default" persistency="666"/>
+  <Rendering deferred_rendering="0" fogColor="0.5 0.5 0.5 1" fogParams="0 0 100 0.1" frustum_culling="1" fxaa="0" hmdd="0" marker="0" occlusion_culling="0" persistency="666" ssao="0" ssao_kernel="4" ssao_noise="4" ssao_radius="0.02" two_sided="1"/>
+  <Scripts persistency="666">
+    <Script base_name="Building" group="objects" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	class Building:
+		def __init__(self):
+			self.name = name
+			self.dimensions = dimensions
+			self.floors = {}
+			self.floorsGroup = None
+			
+		def addFloor(self, name):
+			floor = VR.Floor(name)
+			self.floors[name] = floor
+			return floor
+
+	return Building()
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="Building" name_suffix="0" persistency="666"/>
+      <arg type="NoneType" value="None" base_name="dimensions" name_space="Building" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="Floor" group="objects" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	class Floor:
+		def __init__(self):
+			self.name = name
+			self.zones = {}
+			
+		def addZone(self, name):
+			zone = VR.Zone(name)
+			self.zones[name] = zone
+			return zone
+
+	return Floor()
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="Floor" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="Sensor" group="objects" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	class Sensor:
+		def __init__(self):
+			self.name = name
+			self.value = 0
+
+	return Sensor()
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="Sensor" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="Zone" group="objects" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	class Zone:
+		def __init__(self):
+			self.name = name
+			self.sensors = {}
+			
+		def addSensor(self, name):
+			sensor = VR.Sensor(name)
+			self.sensors[name] = sensor
+			return sensor
+
+	return Zone()
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="Zone" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="analyseData" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	for floor in VR.building.floors.values():
+		print 'floor:', floor.name
+		for zone in floor.zones.values():
+			print ' zone:', zone.name
+			for sensor in zone.sensors.values():
+				print '  sensor:', sensor.name, sensor.value
+</core>
+    </Script>
+    <Script base_name="genModel" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+	from VR.Math import Vec3
+	
+	print '- genModel'
+
+	if hasattr(VR, 'scene'): VR.scene.destroy()
+	VR.scene = VR.Object('scene', 'light')
+
+	def addPrimitive(name, params, pos):
+		g = VR.Geometry(name)
+		g.setPrimitive(params)
+		g.setFrom(pos)
+		VR.scene.addChild(g)
+		return g
+		
+	def addTriangle(obj, p1, p2, p3):
+		for p in [p1,p2,p3]: obj.addVertex(p, [0,1,0], [0,0])
+		obj.addTriangle()
+		
+	def addQuad(obj, p1, p2, p3, p4):
+		addTriangle(obj, p2,p1,p3)
+		addTriangle(obj, p2,p3,p4)
+		
+	def addAnn(parent):
+		ann = VR.AnnotationEngine('ann')
+		ann.setOrientation([0,1,0], [0,0,-1])
+		ann.setSize(0.8)
+		ann.setBackground([1,1,1,0])
+		#ann.setBackground([1,0,0,1])
+		ann.setColor([1,1,1,1])
+		parent.addChild(ann)
+		return ann
+		
+	b = VR.building
+	b.floorsGroup = VR.Object('floors')
+	VR.scene.addChild(b.floorsGroup)
+	if len(b.floors) == 0: return
+	floorHeight = b.dimensions[1]/len(b.floors)
+	
+	W = b.dimensions[0]
+	H = b.dimensions[1]
+	D = b.dimensions[2]
+	
+	print ' - add facade!'
+	f = addPrimitive('facade', 'Box '+str(W)+' '+str(H)+' '+str(D)+' 1 1 1', [0,H*0.5,0])
+	f.makeSingleIndex()
+	fm = VR.Material('facadeMat')
+	fm.setDiffuse([0.9,0.9,0.9])
+	fm.setLit(0)
+	fm.setFrontBackModes('GL_NONE', 'GL_FILL')
+	f.setMaterial(fm)
+	addTriangle(f, [W*0.5, H*0.5, D*0.5], [W*0.5, H*0.5, -D*0.5], [W*0.5, H*0.5+D*0.5, 0])
+	addTriangle(f, [-W*0.5, H*0.5, -D*0.5], [-W*0.5, H*0.5, D*0.5], [-W*0.5, H*0.5+D*0.5, 0])
+	addQuad(f, [-W*0.5, H*0.5, -D*0.5], [W*0.5, H*0.5, -D*0.5], [-W*0.5, H*0.5+D*0.5, 0], [W*0.5, H*0.5+D*0.5, 0])
+	addQuad(f, [W*0.5, H*0.5, D*0.5], [-W*0.5, H*0.5, D*0.5], [W*0.5, H*0.5+D*0.5, 0], [-W*0.5, H*0.5+D*0.5, 0])
+	
+	for i,floor in enumerate(VR.building.floors.values()):
+		posFloor = Vec3([0,i*floorHeight-0.1,0])
+		f = addPrimitive(floor.name, 'Box '+str(W)+' 0.1 '+str(D)+' 1 1 1', posFloor)
+		f.addTag('floor')
+		b.floorsGroup.addChild(f)
+		
+		Nzones = len(floor.zones)
+		if Nzones == 0: continue
+		zoneWidth = float(W)/Nzones
+		ann = addAnn(f)
+		
+		for j,zone in enumerate(floor.zones.values()):
+			posZone = Vec3([zoneWidth*(j+0.5)-W*0.5,0.1,0])
+			z = addPrimitive(zone.name, 'Box '+str(zoneWidth*0.95)+' 0.01 '+str(D*0.95)+' 1 1 1', posZone)
+			z.setMaterial(VR.Material(zone.name))
+			f.addChild(z)
+	
+	VR.updateModel()
+</core>
+    </Script>
+    <Script base_name="init" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	VR.newBuilding(15,9,10)
+	
+	VR.newFloor('floor1')
+	VR.newFloor('floor2')
+	VR.newFloor('floor3')
+	
+	VR.newZone('kitchen', 'floor1')
+	VR.newZone('kitchen', 'floor2')
+	VR.newZone('kitchen', 'floor3')
+	
+	VR.newZone('room', 'floor1')
+	VR.newZone('room', 'floor2')
+	VR.newZone('room', 'floor3')
+	
+	VR.newZone('bath', 'floor2')
+	
+	VR.newSensor('temp1', 'floor1', 'kitchen')
+	VR.newSensor('temp1', 'floor2', 'kitchen')
+	VR.newSensor('temp1', 'floor3', 'kitchen')
+	
+	VR.newSensor('temp2', 'floor1', 'room')
+	VR.newSensor('temp2', 'floor2', 'room')
+	VR.newSensor('temp2', 'floor3', 'room')
+	
+	VR.newSensor('temp3', 'floor2', 'bath')
+	
+	
+	VR.setSensor('temp1', 'floor1', 'kitchen', '22.0°')
+	VR.setSensor('temp1', 'floor2', 'kitchen', '22.0°')
+	VR.setSensor('temp1', 'floor3', 'kitchen', '24.0°')
+	
+	VR.setSensor('temp2', 'floor1', 'room', '19.0°')
+	VR.setSensor('temp2', 'floor2', 'room', '18.0°')
+	VR.setSensor('temp2', 'floor3', 'room', '21.0°')
+	
+	VR.setSensor('temp3', 'floor2', 'bath', '21.0°')
+	
+	
+	VR.genModel()
+	
+	return
+
+	
+	ann = VR.AnnotationEngine('bla')
+	ann.setBackground([1,0,0,1])
+	#ann.set(0, [0,16,0], ' !"#$%&amp;\'()*+,-./0123456789:;')
+	ann.setSize(0.6)
+	ann.set(0, [0,16,0], ')*+,-./0123456789:;kitchen!!!')
+	VR.scene.addChild(ann)
+	
+	aTex = ann.getMaterial().getTexture()
+	#print ann.getPositions() # ok
+	print ann.getTexCoords()
+
+	"""
+	s = VR.Sprite('test')
+	s.setMaterial(VR.Material('bla'))
+	s.setSize(128,1)
+	s.getMaterial().setTexture('theAnnChars.png')
+	s.setFrom([64,18,0])
+	VR.scene.addChild(s)
+	"""
+	s = VR.Sprite('test')
+	s.setMaterial(VR.Material('blaa'))
+	s.setSize(128,1)
+	s.getMaterial().setTexture(aTex)
+	s.setFrom([64,20,0])
+	VR.scene.addChild(s)
+	
+</core>
+      <trig type="on_scene_load" dev="" state="Pressed" param="" key="0" base_name="trigger" name_space="__global__" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="newBuilding" group="generators" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	VR.building = VR.Building('building1', [W,H,D])
+	#VR.genModel()
+</core>
+      <arg type="int" value="1" base_name="W" name_space="newBuilding" name_suffix="0" persistency="666"/>
+      <arg type="int" value="1" base_name="H" name_space="newBuilding" name_suffix="0" persistency="666"/>
+      <arg type="int" value="1" base_name="D" name_space="newBuilding" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="newFloor" group="generators" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	VR.building.addFloor(name)
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="newFloor" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="newSensor" group="generators" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	floor = VR.building.floors[floor]
+	zone = floor.zones[zone]
+	zone.addSensor(name)
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="newSensor" name_suffix="0" persistency="666"/>
+      <arg type="NoneType" value="None" base_name="floor" name_space="newSensor" name_suffix="0" persistency="666"/>
+      <arg type="NoneType" value="None" base_name="zone" name_space="newSensor" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="newZone" group="generators" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	floor = VR.building.floors[floor]
+	floor.addZone(name)
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="newZone" name_suffix="0" persistency="666"/>
+      <arg type="NoneType" value="None" base_name="floor" name_space="newZone" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="selectFloor" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+	
+	
+
+	if dev.intersect(VR.building.floorsGroup):
+		i = dev.getIntersected()
+		a = i.hasAncestorWithTag('floor')
+		ID = a.getName()
+		
+		for f in VR.building.floors.values():
+			floor = VR.scene.findAll(f.name)[0]
+			floor.hide()
+		a.show()
+	
+	else:
+		for f in VR.building.floors.values():
+			floor = VR.scene.findAll(f.name)[0]
+			floor.show()
+</core>
+      <trig type="on_device" dev="mouse" state="Pressed" param="" key="0" base_name="trigger" name_space="__global__" name_suffix="1" persistency="666"/>
+    </Script>
+    <Script base_name="setSensor" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+	floor = VR.building.floors[floor]
+	zone = floor.zones[zone]
+	sensor = zone.sensors[name]
+	sensor.value = value
+</core>
+      <arg type="NoneType" value="None" base_name="name" name_space="setSensor" name_suffix="0" persistency="666"/>
+      <arg type="NoneType" value="None" base_name="floor" name_space="setSensor" name_suffix="0" persistency="666"/>
+      <arg type="NoneType" value="None" base_name="zone" name_space="setSensor" name_suffix="0" persistency="666"/>
+      <arg type="NoneType" value="None" base_name="value" name_space="setSensor" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="startFakeSensors" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+	from VR.Math import cos
+
+	def animCb(t):
+		for i,f in enumerate(VR.building.floors.values()):
+			for j,z in enumerate(f.zones.values()):
+				for k,s in enumerate(z.sensors.values()):
+					T = round(22.0 + 4*cos(t*(i+1)+(j+1)*(i+1)), 1)
+					VR.setSensor(s.name, f.name, z.name, str(T)+'°')
+				
+		VR.updateModel()
+		
+	VR.anim = VR.Animation('fakeSensorInput')
+	VR.anim.setCallback(animCb)
+	VR.anim.setDuration(15)
+	VR.anim.start()
+</core>
+    </Script>
+    <Script base_name="updateModel" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+
+
+
+	for i,f in enumerate(VR.building.floors.values()):
+		floor = VR.scene.findAll(f.name)[0]
+		if len(f.zones) == 0: continue
+		anns = floor.findAll('ann')
+		ann = None
+		if len(anns) &gt; 0: ann = anns[0]
+		for j,z in enumerate(f.zones.values()):
+			zone = floor.findAll(z.name)[0]
+			posZone = zone.getFrom()
+			if ann: ann.set(i*100+(j+5)*10, posZone+[-2.0,0.1,-2], z.name)
+			T = 22.0
+			for k,s in enumerate(z.sensors.values()):
+				if ann: ann.set(i*100+j*10+k, posZone+[-1.5,0.1,0], s.value)
+				if s.value[-2:] == '°': T = float(s.value[:-2])
+				
+			C = 1.0-abs(T-22.0)/4.0
+			if T &gt;= 22: zone.getMaterial().setDiffuse([1-C,C,0])
+			else: zone.getMaterial().setDiffuse([0,C,1-C])
+			
+			
+</core>
+    </Script>
+  </Scripts>
+  <Sockets persistency="666"/>
+  <Background color="0.781323 0.864622 0.902205" format=".png" path="" persistency="666" type="0"/>
+  <Navigation active="Orbit" persistency="666"/>
+  <Materials persistency="666"/>
+  <Semantics persistency="666"/>
+</Scene>

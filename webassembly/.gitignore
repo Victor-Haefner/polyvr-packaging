@@ -1,0 +1,16 @@
+*.js
+*.wasm
+emsdk
+*.depend
+*.layout
+obj
+bin
+OpenSG
+lib
+include
+/polyvr
+/cpython
+/boost
+/libxml2
+/debug
+pytest/build

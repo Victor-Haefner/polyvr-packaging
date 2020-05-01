@@ -1,0 +1,45 @@
+#!/bin/bash
+
+source ../emsdk/emsdk_env.sh --build=Release
+
+# ----- important -----
+# add to /etc/mime.types
+#  application/wasm    wasm
+# sudo service apache2 restart
+
+
+#wasm="-s WASM=1 -s LEGACY_GL_EMULATION=1 -s USE_ZLIB=1"
+#wasm="-s WASM=1 -s USE_ZLIB=1 -lz"
+wasm="-s WASM=1 -s DISABLE_EXCEPTION_CATCHING=0 -std=c++11"
+fonts="-s USE_FREETYPE -s USE_HARFBUZZ"
+dirs="-I../include -L../lib -L~/.emscripten_cache/wasm-obj"
+
+#boost="-s USE_BOOST_HEADERS=1 -lboost_headers -lz"
+#boost="-s USE_BOOST_HEADERS=1"
+#gl="-s LEGACY_GL_EMULATION=1 -lGL -lglut"
+#gl="-lGL -lglut"
+#flags="-O3 -Wl,--no-check-features"
+#flags="-g -s ASSERTIONS=1 -O3 -s ERROR_ON_UNDEFINED_SYMBOLS=0"
+flags="-g -s ALLOW_MEMORY_GROWTH=1"
+
+# using pthread produces an arror about atomics
+#pthread="-s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=2 -pthread"
+pthread=""
+
+#osg="-lOSGContribTrapezoidalShadowMaps -lOSGContribWebInterface -lOSGContribGUI -lOSGContribPLY -lOSGContribBackgroundLoader -lOSGContribComputeBase -lOSGCluster  -lOSGFileIO -lOSGImageFileIO -lOSGDynamics -lOSGText"
+#osg="-lOSGWindowGLUT -lOSGWindowWASM -lOSGWindow -lOSGSystem -lOSGUtil -lOSGDrawable -lOSGGroup -lOSGState -lOSGBase"
+
+#functions="-s EXPORTED_FUNCTIONS=['_main','_getttVertexShader']"
+#functions="-s EXPORT_ALL=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=['ccall','cwrap']"
+functions="-s EXPORTED_FUNCTIONS=['_main','_getVertexShader'] -s EXTRA_EXPORTED_RUNTIME_METHODS=['UTF8ToString']"
+#files="-s FORCE_FILESYSTEM=1 --embed-file data"
+files="-s FORCE_FILESYSTEM=1 --use-preload-plugins"
+
+#cmd="emcc osgTest.cpp $dirs $wasm $osg $gl $boost $flags $pthread -o osgTest.js $functions"
+cmd="em++ simple.cpp $flags $wasm $fonts $functions $files -o simple.js"
+
+echo $cmd
+echo
+$cmd
+
+

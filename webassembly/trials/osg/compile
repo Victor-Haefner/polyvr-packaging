@@ -1,0 +1,34 @@
+#!/bin/bash
+
+source ../emsdk/emsdk_env.sh --build=Release
+
+#wasm="-s WASM=1 -s LEGACY_GL_EMULATION=1 -s USE_ZLIB=1"
+wasm="-s WASM=1 -s USE_ZLIB=1 -lz -s USE_LIBJPEG=1 -s USE_LIBPNG -s USE_FREETYPE"
+dirs="-I../include -L../lib -L~/.emscripten_cache/wasm-obj"
+
+#boost="-s USE_BOOST_HEADERS=1 -lboost_headers -lz"
+boost="-s USE_BOOST_HEADERS=1 -lboost_filesystem -lboost_system"
+#gl="-s LEGACY_GL_EMULATION=1 -lGL -lglut"
+gl="-lGL -lglut"
+#flags="-O3 -Wl,--no-check-features"
+flags="-g -s ASSERTIONS=1 -O3"
+#flags="-O3"
+
+# using pthread produces an arror about atomics
+#pthread="-s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=2 -pthread"
+pthread=""
+
+#osg="-lOSGContribTrapezoidalShadowMaps -lOSGContribWebInterface -lOSGContribGUI -lOSGContribPLY -lOSGContribBackgroundLoader -lOSGContribComputeBase -lOSGCluster -lOSGDynamics -lOSGText"
+osg="-lOSGWindowGLUT -lOSGWindowWASM -lOSGWindow -lOSGSystem -lOSGUtil -lOSGDrawable -lOSGGroup -lOSGState -lOSGBase -lOSGFileIO -lOSGImageFileIO"
+
+#functions="-s EXPORTED_FUNCTIONS=['_main','_getVertexShader']"
+functions="-s EXTRA_EXPORTED_RUNTIME_METHODS=['UTF8ToString']"
+#functions="-s EXPORT_ALL=1"
+
+cmd="em++ osgTest.cpp $dirs $wasm $osg $gl $boost $flags $functions $pthread -o osgTest.js"
+
+echo $cmd
+echo
+$cmd
+
+

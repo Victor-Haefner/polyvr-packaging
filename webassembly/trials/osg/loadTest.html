@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="shortcut icon" href="#"> <!-- removes favicon.ico bullshit -->
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+	<style>
+	#progressBar {
+		display: none;
+		width: 0%;
+		height: 30px;
+		background-color: #4CAF50;
+		text-align: center; /* To center it horizontally (if you want) */
+		line-height: 30px; /* To center it vertically */
+		color: white;
+		margin: 4px;
+	}
+	</style>
+</head>
+
+<body>
+	<script src="storage.js"></script>
+	<script type='text/javascript'>
+		initStorage();
+	</script>
+
+	<button onclick="getRessource('osgTest.wasm')">fetch!</button>
+	<button onclick="loadRessource('osgTest.wasm')">reload!</button>
+	<button onclick="clearRessource('osgTest.wasm')">clear</button>
+
+	<div id="progressBar">10%</div>
+</body>
+
+</html>

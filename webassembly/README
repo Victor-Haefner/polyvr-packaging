@@ -1,0 +1,34 @@
+compilation commands:
+
+sdl:
+emcc sdlTest.cpp -std=c++11 -s WASM=1 -s USE_SDL=2 -O3 -o sdlTest.js
+
+glut:
+emcc glutTest.cpp -s WASM=1 -lGL -lglut -O3 -DANIMATE=1 -o glutTest.js
+
+osg:
+emcc osgTest.cpp -s WASM=1 -s LEGACY_GL_EMULATION=1 -s USE_PTHREADS=1 -s USE_BOOST_HEADERS=1 -s USE_ZLIB=1 -I../include -L../lib -lGL -lglut -lOSGBase -lOSGContribComputeBase -lOSGContribTrapezoidalShadowMaps -lOSGDynamics -lOSGGroup -lOSGSystem -lOSGWindow -lOSGCluster -lOSGContribGUI -lOSGContribWebInterface -lOSGEffectGroups -lOSGImageFileIO -lOSGText -lOSGWindowWASM -lOSGContribBackgroundLoader -lOSGContribPLY -lOSGDrawable -lOSGFileIO -lOSGState -lOSGUtil -pthread -O3 -o osgTest.js
+
+linker errors:
+- missing symbol, use llvm-nm
+   ../emsdk/upstream/bin/llvm-nm libOSGBase.a | grep _ZN3OSG12MFieldVectorINS_14QuaternionBaseINS_7Fixed32EEENSt3__29allocatorIS3_EEE11shareValuesERS7_b
+   ../emsdk/upstream/bin/llvm-nm libOSGBase.a | grep _ZNK5boost10filesystem4path7compareERKS1_
+
+cd OpenSG/Source
+grep -R MFieldVector | grep share
+Base/Field/OSGMFieldVector.inl:void MFieldVector<Tp, Alloc>::shareValues(Self &other, bool bDeleteOld)
+Base/Field/OSGMFieldVector.inl:void MFieldVector<Ty, A>::shareValues(Self &other, bool bDeleteOld)
+
+Base/Base/OSGQuaternion.ins
+
+error: undefined symbol: _ZNK5boost10filesystem4path7compareERKS1_
+
+flags:
+-s LEGACY_GL_EMULATION=1
+
+
+TODO:
+compile boost
+https://stackoverflow.com/questions/15724357/using-boost-with-emscripten
+
+use OSG_USE_OGLES_PROTOS ?

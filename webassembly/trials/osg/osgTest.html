@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="shortcut icon" href="#"> <!-- removes favicon.ico bullshit -->
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+	<style>
+	#progressBar {
+		display: none;
+		width: 0%;
+		height: 30px;
+		background-color: #4CAF50;
+		text-align: center; /* To center it horizontally (if you want) */
+		line-height: 30px; /* To center it vertically */
+		color: white;
+		margin: 4px;
+	}
+	</style>
+</head>
+
+<body>
+	<!-- Create the canvas that the C++ code will draw into -->
+	<canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+	<script src="storage.js"></script>
+
+	<!-- Allow the C++ to access the canvas element --> 
+	<div id="progressBar"></div>
+	<script type='text/javascript'>
+		var canv = document.getElementById('canvas');
+		var Module = {
+		    canvas: canv
+		};
+
+		var onInit   = function() { getRessource('osgTest.wasm'); };
+
+		function preloadFile(path) {
+			console.log('preloadFile '+path);
+			FS.createPreloadedFile('/', path, path, true, true);	
+		};
+
+		var onScriptLoaded = function() { 
+			preloadFile('texture.png');
+			preloadFile('texture2.png');
+			preloadFile('texture.jpg');
+		};
+
+		var onLoaded = function() { 
+			console.log(' loaded wasm!!'); 
+			var script = document.createElement('script');
+			script.onload = function() { onScriptLoaded(); };
+			script.src = 'osgTest.js';
+			document.body.appendChild(script);
+
+			// changes in osgTest.js:
+			//
+			// getBinaryPromise returns directly storage.response
+			//  function getBinaryPromise() {
+			//    if (storage.ressource) {
+			//      console.log('use stored wasm binary!');
+			//      return new Promise(function(resolve, reject) { resolve(storage.ressource); });
+			//    }
+			//
+			// and instantiateAsync get an additional check for storage
+			//   function instantiateAsync() {
+			//     if (!wasmBinary && !storage.ressource &&
+		};
+
+		initStorage( onInit, onLoaded );
+	</script>
+
+	<!--script src="osgTest.js"></script-->
+
+	<script type='text/javascript'>
+		function wasmStr(s) {
+			ptr = allocate(intArrayFromString(s), 'i8', 0);
+			setTimeout(function(){ _free(ptr); }, 5000);
+			return ptr;
+		}
+
+		function updateEditors() {
+			var ve = document.getElementById('Veditor');
+			var fe = document.getElementById('Feditor');
+			ve.value = Module.UTF8ToString( _getVertexShader() );
+			fe.value = Module.UTF8ToString( _getFragmentShader() );
+		}
+
+		function sendVertexShader() {
+			var ve = document.getElementById('Veditor');
+			_setVertexShader(wasmStr(ve.value));
+		}
+
+		function sendFragmentShader() {
+			var fe = document.getElementById('Feditor');
+			_setFragmentShader(wasmStr(fe.value));
+		}
+
+		function checkWASM() {
+			var entries = window.performance.getEntries();
+			var wasm;
+			for (var e of entries) {
+				if (e.name.split('.').pop() == 'wasm') wasm = e;
+			}
+			if (wasm) {
+				console.log('resource: ' + wasm.name + ' ' + wasm.duration);
+				//console.log(wasm);			
+			}		
+		}
+
+		Module.onRuntimeInitialized = function() {
+			setTimeout(function() { updateEditors(); }, 1000);
+			//checkWASM();
+		}
+
+	</script>
+
+	<button onclick='updateEditors()'>update</button>
+	<p>Vertex Shader:</p>
+	<textarea id='Veditor' rows = "15" cols = "70" name = "description"></textarea><br>
+	<button onclick='sendVertexShader()'>send VS</button>
+
+	<p>Fragment Shader:</p>
+	<textarea id='Feditor' rows = "15" cols = "70" name = "description"></textarea><br>
+	<button onclick='sendFragmentShader()'>send FS</button>
+
+</body>
+
+</html>

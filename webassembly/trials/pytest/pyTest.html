@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="shortcut icon" href="#"> <!-- removes favicon.ico bullshit -->
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+
+<body>
+	<canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+	<script type='text/javascript'>
+		var canv = document.getElementById('canvas');
+		var Module = {
+		    canvas: canv,
+		    arguments: [],
+		    preRun: []
+		};
+
+		var onPreRun = function() {
+			console.log('onPreRun'); 
+			ENV.PYTHONHOME = "/python";
+		};
+		Module.preRun.push(onPreRun);
+
+		function preloadFile(path) {
+			//console.log('preloadFile '+path);
+			FS.createPreloadedFile('/', path, path, true, true);	
+		};
+
+		function scanDir(path, onGet) {
+			console.log('scanDir '+path);
+			req = new XMLHttpRequest();
+			req.onreadystatechange = function() {
+				if (req.readyState == 4 && req.status === 200) {
+					var data = req.responseText.split('|||');
+					onGet( { 'dirs':data[0].split('|'), 'files':data[1].split('|') } )
+				}
+			}
+			req.open("GET", 'scanDir.php?path='+path, true);
+			req.send(null);
+		}
+
+		function preloadFolder(path, stack = []) {
+			console.log('preloadFolder '+path);
+			FS.mkdir('/'+path);
+			scanDir(path, function(content) {
+				var files = content.files;
+				if (files.length > 0 && files[0] != "") {
+					for (var file in content.files) preloadFile(path+"/"+files[file]);
+				}
+				var dirs = content.dirs;
+				if (dirs.length > 0 && dirs[0] != "") {
+					for(var i=0;i<dirs.length;i++) dirs[i]=path+"/"+dirs[i];
+					stack.push.apply(stack, dirs);
+				}
+				if (stack.length > 0) preloadFolder(stack.pop(), stack);
+			});
+		};
+
+		var onScriptLoaded = function() {
+			console.log('onScriptLoaded');
+			//preloadFolder('python');
+		};
+
+		function loadScript() { 
+			console.log('loadScript'); 
+			var script = document.createElement('script');
+			script.onload = onScriptLoaded;
+			script.src = 'pyTest.js';
+			document.body.appendChild(script);
+		};
+
+		loadScript();
+
+	</script>
+
+	<!--script type='text/javascript' src="pyTest.js"></script-->
+
+	<p>Text Area:</p>
+	<textarea id='editor' rows = "5" cols = "60" name = "description"></textarea><br>
+	<button onclick="sendMessage()">send</button>
+	<button onclick='updateEditor()'>update</button>
+</body>
+
+</html>
