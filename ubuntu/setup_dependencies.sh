@@ -158,3 +158,21 @@ if [ ! -e OPCUA/build ]; then
   cmake -DSSL_SUPPORT_MBEDTLS=OFF .. && make -j4
 fi
 fi
+
+# get libredwg source from git
+if [ $JOB == "ALL" ] || [ $JOB == "DWG" ]; then
+cd $DIR
+if [ ! -e libredwg/.git ]; then
+  su $SUDO_USER -c "git clone https://github.com/Victor-Haefner/libredwg.git $DIR/libredwg"
+fi
+
+# compile libredwg
+cd $DIR
+if [ ! -e libredwg/build ]; then
+  su $SUDO_USER -c "mkdir libredwg/build"
+  cd libredwg
+  ./configure --prefix=$DIR/libredwg/build/usr
+  make
+  make install
+fi
+fi
