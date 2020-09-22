@@ -16,5 +16,8 @@ rem ninja -C .\libgtk\_build
 rem ninja -C .\libgtk\_build install
 
 echo --- configure libgtk ---
-cd %myDir%/libgtk2
+cd %myDir%/libgtk2/gdk
+nmake -f makefile.msc
+cd %myDir%/libgtk2/gtk
+cp makefile.msc.in makefile.msc
 nmake -f makefile.msc

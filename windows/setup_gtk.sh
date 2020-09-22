@@ -20,15 +20,12 @@ cd $DIR
 libDir="/c/usr/lib"
 incDir="/c/usr/include"
 
-if [ ! -e $libDir ]; then 
-	mkdir -p $libDir 
-fi
-if [ ! -e $incDir ]; then 
-	mkdir -p $incDir 
-fi
-if [ ! -e gtk ]; then 
-	mkdir -p gtk 
-fi
+# TODO: move functions to own file!
+function makeDir {
+	if [ ! -e $1 ]; then
+		mkdir -p $1 
+	fi
+}
 
 function downloadRepository {
 	cd $DIR
@@ -40,27 +37,20 @@ function downloadRepository {
 	fi
 }
 
-# for gtk3
-# downloadRepository meson https://github.com/mesonbuild/meson.git
-# for gtk3
-#if [ -e "/c/Program Files/Meson" ]; then
-#	if [ ! -e "/c/Program Files/Meson/mesonbuild" ]; then
-#		cp -r meson/mesonbuild "/c/Program Files/Meson/mesonbuild"
-#	fi
-#fi
+makeDir $libDir
+makeDir $incDir
+makeDir base
+makeDir gtk
 
-# TODO: move to OpenSG!
-downloadRepository gtk/libpng --branch libpng16 https://github.com/glennrp/libpng.git
-downloadRepository gtk/libjpeg --branch 1.5.x https://github.com/libjpeg-turbo/libjpeg-turbo.git
-
-# pixman				https://github.com/servo/pixman.git
-# jasper
-# expat					https://github.com/libexpat/libexpat.git
-# fontconfig			https://github.com/behdad/fontconfig.git
-# gettext-runtime
-# pcre
-# libffi
-# icu
+# TODO: move base to own setup file!
+downloadRepository base/libpng --branch libpng16 https://github.com/glennrp/libpng.git
+downloadRepository base/libjpeg --branch 1.5.x https://github.com/libjpeg-turbo/libjpeg-turbo.git
+downloadRepository base/libpixman --branch 0.34 https://github.com/aseprite/pixman.git
+downloadRepository base/libexpat --branch R_2_2_53 https://github.com/libexpat/libexpat.git
+downloadRepository base/libfontconfig --branch 2.12.6 https://github.com/freedesktop/fontconfig.git
+downloadRepository base/libpcre	--branch pcre-8.36 https://github.com/vmg/libpcre.git # 2:8.39-9
+downloadRepository base/libffi --branch v3.2.1 https://github.com/libffi/libffi.git
+downloadRepository base/libicu --branch release-60-2 https://github.com/unicode-org/icu.git
 
 downloadRepository gtk/libpango --branch 1.40.14 https://gitlab.gnome.org/GNOME/pango.git
 downloadRepository gtk/libgdkpixbuf --branch 2.36.11 https://gitlab.gnome.org/GNOME/gdk-pixbuf.git
