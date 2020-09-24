@@ -30,6 +30,6 @@ function mkDir {
 }
 
 function getGenerator {
-	echo "Visual Studio 15 2017 Win64"
-	#echo "Visual Studio 16 2019"
+	#echo "Visual Studio 15 2017 Win64"
+	echo "Visual Studio 16 2019"
 }
