@@ -3,6 +3,9 @@
 # !before you launch this script!
 #  install Visual Studio 2019
 
+# TODO
+#  change /MT to /MD in
+#   third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/cmake/cef_variables.cmake
 
 source utils.sh
 
@@ -21,6 +24,7 @@ mkDir $libDir
 mkDir $incDir
 
 downloadRepository $vcpkgDir https://github.com/Microsoft/vcpkg.git
+downloadRepository repositories/cef https://github.com/chromiumembedded/cef-project.git
 downloadRepository repositories/opensg https://github.com/Victor-Haefner/OpenSGDevMaster.git
 downloadRepository repositories/polyvr https://github.com/Victor-Haefner/polyvr.git
 
@@ -53,21 +57,18 @@ echo " using cmake: $cmakeExe"
 # ------------------------------------- compile OpenSG ----------------------------------------
 #rm -rf $DIR/repositories/opensg/build
 
-d_inc=$incDir/OpenSG/
-mkdir -p $d_inc
-mkdir -p $libDir/opensg
-
 cd $DIR/repositories
 if [ ! -e opensg/build ]; then
 	echo "compile opensg"
 	mkdir opensg/build
 	cd opensg/build
 	
-	#$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCOLLADA_DAE_INCLUDE_DIR="$vcpkgIncDir/collada-dom2.5" -DCOLLADA_DOM_INCLUDE_DIR="$vcpkgIncDir/collada-dom2.5/1.5" -DCMAKE_BUILD_TYPE=Release ..
-	
 	$cmakeExe -G "$GENERATOR" -DBOOST_BIND_GLOBAL_PLACEHOLDERS -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
-
 	$cmakeExe --build . --config Release
+
+	d_inc=$incDir/OpenSG/
+	mkdir -p $d_inc
+	mkdir -p $libDir/opensg
 
 	cd $DIR/repositories/opensg
 	find Source -name "*.h" -exec cp {} $d_inc \;
@@ -76,7 +77,30 @@ if [ ! -e opensg/build ]; then
 	cp Source/WindowSystem/X/OSGNativeWindow.h $d_inc
 	cp -r build/bin/Release/* $libDir/opensg/
 fi
+
+# ------------------------------------- compile CEF ----------------------------------------
+#rm -rf $DIR/repositories/cef/build
 	
+cd $DIR/repositories
+if [ ! -e cef/build ]; then
+	echo "compile cef"
+	mkdir cef/build
+	cd cef/build
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=/c/usr/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+	$cmakeExe --build . --config Release
+
+	d_inc=$incDir/CEF/
+	mkdir -p $d_inc
+	mkdir -p $libDir/cef
+	
+	cd $DIR/repositories/cef
+	cp -r third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/include $d_inc/;
+	cp -r build/Release/* $libDir/cef/
+	cp -r build/libcef_dll_wrapper/Release/* $libDir/cef/
+	cp third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/Release/libcef.lib $libDir/cef/
+fi
+# TODO: copy pak files!
 
 
 # ------------------------------------- compile PolyVR ----------------------------------------
@@ -87,14 +111,10 @@ if [ ! -e polyvr/build ]; then
 	echo "compile polyvr"
 	mkdir polyvr/build
 	cd polyvr/build
+	
 	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=/c/usr/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 	$cmakeExe --build . --config Release
 fi
-
-
-#cd polyvr/build
-#$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=/c/usr/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-#$cmakeExe --build . --config Release
 
 
 
