@@ -102,6 +102,19 @@ if [ ! -e cef/build ]; then
 fi
 # TODO: copy pak files!
 
+#rm -rf $DIR/repositories/polyvr/ressources/cefWin/build
+cd $DIR/repositories/polyvr/ressources/cefWin
+if [ ! -e build ]; then
+	echo "compile cef subprocess executable"
+	mkdir build
+	cd build
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=/c/usr/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+	$cmakeExe --build . --config Release
+	cp Release/CefSubProcessWin.exe ../
+fi
+
+
 
 # ------------------------------------- compile PolyVR ----------------------------------------
 #rm -rf $DIR/repositories/polyvr/build
