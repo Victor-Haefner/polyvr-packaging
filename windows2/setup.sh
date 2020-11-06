@@ -26,6 +26,7 @@ mkDir $incDir
 downloadRepository $vcpkgDir https://github.com/Microsoft/vcpkg.git
 downloadRepository repositories/cef https://github.com/chromiumembedded/cef-project.git
 downloadRepository repositories/opensg https://github.com/Victor-Haefner/OpenSGDevMaster.git
+downloadRepository repositories/openvr https://github.com/ValveSoftware/openvr.git
 downloadRepository repositories/polyvr https://github.com/Victor-Haefner/polyvr.git
 
 
@@ -76,6 +77,25 @@ if [ ! -e opensg/build ]; then
 	find build/Source -name "*.h" -exec cp {} $d_inc \;
 	cp Source/WindowSystem/X/OSGNativeWindow.h $d_inc
 	cp -r build/bin/Release/* $libDir/opensg/
+fi
+
+# ------------------------------------- compile OpenVR ----------------------------------------
+cd $DIR/repositories
+if [ ! -e openvr/build ]; then
+	echo "compile openvr"
+	mkdir openvr/build
+	cd openvr/build
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release ..
+	$cmakeExe --build . --config Release
+
+	d_inc=$incDir/OpenVR/
+	mkdir -p $d_inc
+	mkdir -p $libDir/openvr
+
+	cd $DIR/repositories/openvr
+	cp headers/* $d_inc/
+	cp bin/win64/Release/* $libDir/openvr/
 fi
 
 # ------------------------------------- compile CEF ----------------------------------------
