@@ -2,10 +2,12 @@
 
 # !before you launch this script!
 #  install Visual Studio 2019
+#  install python 3.8
 
 # TODO
-#  change /MT to /MD in
-#   third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/cmake/cef_variables.cmake
+#  after first run of the cef cmake stuff
+#   change /MT to /MD in
+#    third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/cmake/cef_variables.cmake
 
 source utils.sh
 
@@ -14,9 +16,10 @@ GENERATOR=$(getGenerator)
 echo "Running windows polyvr build setup in $DIR"
 echo " Build generator: $GENERATOR"
 
-libDir="/c/usr/lib"
-incDir="/c/usr/include"
-vcpkgDir="/c/usr/vcpkg"
+# change the disk as required
+libDir="/d/usr/lib"
+incDir="/d/usr/include"
+vcpkgDir="/d/usr/vcpkg"
 vcpkgIncDir="$vcpkgDir/installed/x64-windows/include"
 vcpkgLibDir="$vcpkgDir/installed/x64-windows/lib"
 
@@ -64,7 +67,7 @@ if [ ! -e opensg/build ]; then
 	mkdir opensg/build
 	cd opensg/build
 	
-	$cmakeExe -G "$GENERATOR" -DBOOST_BIND_GLOBAL_PLACEHOLDERS -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
+	$cmakeExe -G "$GENERATOR" -DBOOST_BIND_GLOBAL_PLACEHOLDERS=ON -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/OpenSG/
@@ -107,7 +110,7 @@ if [ ! -e cef/build ]; then
 	mkdir cef/build
 	cd cef/build
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=/c/usr/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/CEF/
@@ -129,7 +132,7 @@ if [ ! -e build ]; then
 	mkdir build
 	cd build
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=/c/usr/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake ..
 	$cmakeExe --build . --config Release
 	cp Release/CefSubProcessWin.exe ../
 fi
@@ -145,7 +148,7 @@ if [ ! -e polyvr/build ]; then
 	mkdir polyvr/build
 	cd polyvr/build
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=/c/usr/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake ..
 	$cmakeExe --build . --config Release
 fi
 
