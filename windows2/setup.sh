@@ -16,10 +16,17 @@ GENERATOR=$(getGenerator)
 echo "Running windows polyvr build setup in $DIR"
 echo " Build generator: $GENERATOR"
 
+
 # change the disk as required
-libDir="/d/usr/lib"
-incDir="/d/usr/include"
-vcpkgDir="/d/usr/vcpkg"
+rootDir="/d"
+if [ ! -e $rootDir ]; then
+	rootDir="/c"
+fi
+
+
+libDir="$rootDir/usr/lib"
+incDir="$rootDir/usr/include"
+vcpkgDir="$rootDir/usr/vcpkg"
 vcpkgIncDir="$vcpkgDir/installed/x64-windows/include"
 vcpkgLibDir="$vcpkgDir/installed/x64-windows/lib"
 
@@ -52,7 +59,8 @@ fi
 ./vcpkg.exe install python2:x64-windows
 ./vcpkg.exe install boost:x64-windows
 ./vcpkg.exe install glew:x64-windows
-#./vcpkg.exe install collada-dom:x64-windows
+./vcpkg.exe install collada-dom:x64-windows
+./vcpkg.exe install bullet3:x64-windows
 ./vcpkg.exe install gtk:x64-windows
 
 cmakeExe=$vcpkgDir/$(find ./downloads/tools -name cmake.exe)
@@ -67,7 +75,7 @@ if [ ! -e opensg/build ]; then
 	mkdir opensg/build
 	cd opensg/build
 	
-	$cmakeExe -G "$GENERATOR" -DBOOST_BIND_GLOBAL_PLACEHOLDERS=ON -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
+	$cmakeExe -G "$GENERATOR" -DBOOST_BIND_GLOBAL_PLACEHOLDERS=ON -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5 -DCOLLADA_DOM_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5/1.4 -DOSG_WITH_COLLADA_NAMESPACE=ON ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/OpenSG/
@@ -89,7 +97,7 @@ if [ ! -e openvr/build ]; then
 	mkdir openvr/build
 	cd openvr/build
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release ..
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED=ON ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/OpenVR/
