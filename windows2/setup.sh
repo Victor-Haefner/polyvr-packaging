@@ -37,6 +37,7 @@ downloadRepository $vcpkgDir https://github.com/Microsoft/vcpkg.git
 downloadRepository repositories/cef https://github.com/chromiumembedded/cef-project.git
 downloadRepository repositories/opensg https://github.com/Victor-Haefner/OpenSGDevMaster.git
 downloadRepository repositories/openvr https://github.com/ValveSoftware/openvr.git
+downloadRepository repositories/collada https://github.com/Victor-Haefner/collada-dom.git
 downloadRepository repositories/polyvr https://github.com/Victor-Haefner/polyvr.git
 
 
@@ -59,12 +60,39 @@ fi
 ./vcpkg.exe install python2:x64-windows
 ./vcpkg.exe install boost:x64-windows
 ./vcpkg.exe install glew:x64-windows
-./vcpkg.exe install collada-dom:x64-windows
+#./vcpkg.exe install collada-dom:x64-windows   # segfaults in DAE::open
 ./vcpkg.exe install bullet3:x64-windows
 ./vcpkg.exe install gtk:x64-windows
 
+# when using vcpkg collada
+#cp buildtrees/collada-dom/x64-windows-rel/dom/src/1.4/colladadom141.lib $vcpkgLibDir/
+#cp buildtrees/collada-dom/x64-windows-rel/dom/src/1.5/colladadom150.lib $vcpkgLibDir/
+
 cmakeExe=$vcpkgDir/$(find ./downloads/tools -name cmake.exe)
 echo " using cmake: $cmakeExe"
+
+# ------------------------------------- compile COLLADA ----------------------------------------
+#rm -rf $DIR/repositories/collada/build
+
+cd $DIR/repositories
+if [ ! -e collada/build ]; then
+	echo "compile collada"
+	mkdir collada/build
+	cd collada/build
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOPT_COLLADA15=OFF ..
+	$cmakeExe --build . --config Release
+
+	d_inc=$incDir/Collada/
+	mkdir -p $d_inc
+	mkdir -p $libDir/collada
+
+	cd $DIR/repositories/collada
+	cp -r dom/include/* $d_inc/
+	cp -r build/dom/Release/* $libDir/collada/
+	cp build/dom/src/1.4/Release/* $libDir/collada/
+
+fi
 
 # ------------------------------------- compile OpenSG ----------------------------------------
 #rm -rf $DIR/repositories/opensg/build
@@ -75,7 +103,11 @@ if [ ! -e opensg/build ]; then
 	mkdir opensg/build
 	cd opensg/build
 	
-	$cmakeExe -G "$GENERATOR" -DBOOST_BIND_GLOBAL_PLACEHOLDERS=ON -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5 -DCOLLADA_DOM_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5/1.4 -DOSG_WITH_COLLADA_NAMESPACE=ON ..
+	# with vcpkg collada
+	#$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5 -DCOLLADA_DOM_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5/1.4 -DOSG_WITH_COLLADA_NAMESPACE=ON ..
+	
+	# with collada from repo
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$incDir/Collada -DCOLLADA_DOM_INCLUDE_DIR=$incDir/Collada/1.4 -DCOLLADA_LIBRARY_RELEASE=$libDir/collada/collada-dom2.5-dp-vc100-mt.lib -DOSG_WITH_COLLADA_NAMESPACE=ON ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/OpenSG/
