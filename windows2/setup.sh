@@ -39,6 +39,8 @@ downloadRepository repositories/opensg https://github.com/Victor-Haefner/OpenSGD
 downloadRepository repositories/openvr https://github.com/ValveSoftware/openvr.git
 downloadRepository repositories/collada https://github.com/Victor-Haefner/collada-dom.git
 downloadRepository repositories/polyvr https://github.com/Victor-Haefner/polyvr.git
+downloadRepository repositories/oce https://github.com/Victor-Haefner/oce.git
+downloadRepository repositories/ifc https://github.com/Victor-Haefner/IfcOpenShell.git
 
 
 # ------------------------------------- install basic dependencies ----------------------------------------
@@ -56,6 +58,7 @@ fi
 ./vcpkg.exe install freetype:x64-windows      # find_package(freetype CONFIG REQUIRED)      target_link_libraries(main PRIVATE freetype)
 ./vcpkg.exe install tiff:x64-windows 
 ./vcpkg.exe install gdal:x64-windows 
+./vcpkg.exe install cgal:x64-windows 
 ./vcpkg.exe install freeglut:x64-windows      # find_package(GLUT REQUIRED)                 target_link_libraries(main PRIVATE GLUT::GLUT)
 ./vcpkg.exe install python2:x64-windows
 ./vcpkg.exe install boost:x64-windows
@@ -177,7 +180,29 @@ if [ ! -e build ]; then
 	cp Release/CefSubProcessWin.exe ../
 fi
 
+# ------------------------------------- compile OCE ----------------------------------------
 
+cd $DIR/repositories
+if [ ! -e oce/build ]; then
+	echo "compile oce"
+	mkdir oce/build
+	cd oce/build
+	
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCE_VISUALISATION=OFF -DOCE_DISABLE_TKSERVICE_FONT=ON..
+	$cmakeExe --build . --config Release
+
+	d_inc=$incDir/OCE/
+	mkdir -p $d_inc
+	mkdir -p $libDir/oce
+
+	cd $DIR/repositories/oce
+	cp -R inc/* $d_inc/
+	cp src/*/*.h $d_inc/
+	cp src/*/*.hxx $d_inc/
+	cp src/*/*.lxx $d_inc/
+	cp -r build/bin/Release/* $libDir/oce/
+fi
 
 # ------------------------------------- compile PolyVR ----------------------------------------
 #rm -rf $DIR/repositories/polyvr/build
