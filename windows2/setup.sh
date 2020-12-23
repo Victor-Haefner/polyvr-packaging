@@ -59,6 +59,10 @@ fi
 ./vcpkg.exe install tiff:x64-windows 
 ./vcpkg.exe install gdal:x64-windows 
 ./vcpkg.exe install cgal:x64-windows 
+./vcpkg.exe install curl:x64-windows 
+#./vcpkg.exe install lapack:x64-windows       # TODO: does not compile yet, needs fortran??
+./vcpkg.exe install libssh2:x64-windows 
+./vcpkg.exe install cryptopp:x64-windows 
 ./vcpkg.exe install freeglut:x64-windows      # find_package(GLUT REQUIRED)                 target_link_libraries(main PRIVATE GLUT::GLUT)
 ./vcpkg.exe install python2:x64-windows
 ./vcpkg.exe install boost:x64-windows
@@ -202,6 +206,27 @@ if [ ! -e oce/build ]; then
 	cp src/*/*.hxx $d_inc/
 	cp src/*/*.lxx $d_inc/
 	cp -r build/bin/Release/* $libDir/oce/
+fi
+
+# ------------------------------------- compile IFC ----------------------------------------
+
+cd $DIR/repositories
+if [ ! -e ifc/build ]; then
+	echo "compile ifc"
+	mkdir ifc/build
+	cd ifc/build
+	
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCC_INCLUDE_DIR=$incDir/OCE -DOCC_LIBRARY_DIR=$libDir/oce -DUNICODE_SUPPORT=OFF -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF ../cmake
+	$cmakeExe --build . --config Release
+
+	d_inc=$incDir/IFC/
+	mkdir -p $d_inc
+	mkdir -p $libDir/ifc
+
+	#cd $DIR/repositories/oce
+	#cp -R inc/* $d_inc/
+	#cp -r build/bin/Release/* $libDir/oce/
 fi
 
 # ------------------------------------- compile PolyVR ----------------------------------------
