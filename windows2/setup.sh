@@ -60,14 +60,16 @@ fi
 ./vcpkg.exe install gdal:x64-windows 
 ./vcpkg.exe install cgal:x64-windows 
 ./vcpkg.exe install curl:x64-windows 
-#./vcpkg.exe install lapack:x64-windows       # TODO: does not compile yet, needs fortran??
+./vcpkg.exe install lapack:x64-windows       # TODO: does not compile yet, needs fortran??
 ./vcpkg.exe install libssh2:x64-windows 
 ./vcpkg.exe install cryptopp:x64-windows 
 ./vcpkg.exe install freeglut:x64-windows      # find_package(GLUT REQUIRED)                 target_link_libraries(main PRIVATE GLUT::GLUT)
 ./vcpkg.exe install python2:x64-windows
 ./vcpkg.exe install boost:x64-windows
 ./vcpkg.exe install glew:x64-windows
-#./vcpkg.exe install collada-dom:x64-windows   # segfaults in DAE::open
+./vcpkg.exe install ffmpeg:x64-windows
+./vcpkg.exe install openal-soft:x64-windows
+#./vcpkg.exe install collada-dom:x64-windows   # segfaults in DAE::open, building from source down below
 ./vcpkg.exe install bullet3:x64-windows
 ./vcpkg.exe install gtk:x64-windows
 
