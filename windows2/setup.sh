@@ -41,6 +41,8 @@ downloadRepository repositories/collada https://github.com/Victor-Haefner/collad
 downloadRepository repositories/polyvr https://github.com/Victor-Haefner/polyvr.git
 downloadRepository repositories/oce https://github.com/Victor-Haefner/oce.git
 downloadRepository repositories/ifc https://github.com/Victor-Haefner/IfcOpenShell.git
+downloadRepository repositories/opcua https://github.com/Victor-Haefner/freeopcua.git
+downloadRepository repositories/dwg https://github.com/Victor-Haefner/libredwg.git
 
 
 # ------------------------------------- install basic dependencies ----------------------------------------
@@ -60,6 +62,10 @@ fi
 ./vcpkg.exe install gdal:x64-windows 
 ./vcpkg.exe install cgal:x64-windows 
 ./vcpkg.exe install curl:x64-windows 
+./vcpkg.exe install fftw3:x64-windows 
+./vcpkg.exe install libqrencode:x64-windows 
+./vcpkg.exe install icu:x64-windows 
+./vcpkg.exe install jsoncpp:x64-windows 
 ./vcpkg.exe install lapack:x64-windows       # TODO: does not compile yet, needs fortran??
 ./vcpkg.exe install libssh2:x64-windows 
 ./vcpkg.exe install cryptopp:x64-windows 
@@ -77,7 +83,7 @@ fi
 #cp buildtrees/collada-dom/x64-windows-rel/dom/src/1.4/colladadom141.lib $vcpkgLibDir/
 #cp buildtrees/collada-dom/x64-windows-rel/dom/src/1.5/colladadom150.lib $vcpkgLibDir/
 
-cmakeExe=$vcpkgDir/$(find ./downloads/tools -name cmake.exe)
+cmakeExe=$vcpkgDir/$(find ./downloads/tools -name cmake.exe | tail -n 1)
 echo " using cmake: $cmakeExe"
 
 # ------------------------------------- compile COLLADA ----------------------------------------
@@ -219,16 +225,19 @@ if [ ! -e ifc/build ]; then
 	cd ifc/build
 	
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCC_INCLUDE_DIR=$incDir/OCE -DOCC_LIBRARY_DIR=$libDir/oce -DUNICODE_SUPPORT=OFF -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF ../cmake
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCC_INCLUDE_DIR=$incDir/OCE -DOCC_LIBRARY_DIR=$libDir/oce -DUNICODE_SUPPORT=ON -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON ../cmake
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/IFC/
-	mkdir -p $d_inc
+	mkdir -p $d_inc/ifcparse
+	mkdir -p $d_inc/ifcgeom
+	mkdir -p $d_inc/ifcconvert
 	mkdir -p $libDir/ifc
-
-	#cd $DIR/repositories/oce
-	#cp -R inc/* $d_inc/
-	#cp -r build/bin/Release/* $libDir/oce/
+	
+	cp Release/Ifc* $libDir/ifc/
+	cp -p ../src/ifcparse/*.h /c/usr/include/IFC/ifcparse/
+	cp -p ../src/ifcgeom/*.h /c/usr/include/IFC/ifcgeom/
+	cp -p ../src/ifcconvert/*.h /c/usr/include/IFC/ifcconvert/
 fi
 
 # ------------------------------------- compile PolyVR ----------------------------------------
