@@ -73,6 +73,7 @@ fi
 ./vcpkg.exe install python2:x64-windows
 ./vcpkg.exe install boost:x64-windows
 ./vcpkg.exe install glew:x64-windows
+./vcpkg.exe install eigen3:x64-windows
 ./vcpkg.exe install ffmpeg:x64-windows
 ./vcpkg.exe install openal-soft:x64-windows
 #./vcpkg.exe install collada-dom:x64-windows   # segfaults in DAE::open, building from source down below
@@ -238,6 +239,23 @@ if [ ! -e ifc/build ]; then
 	cp -p ../src/ifcparse/*.h /c/usr/include/IFC/ifcparse/
 	cp -p ../src/ifcgeom/*.h /c/usr/include/IFC/ifcgeom/
 	cp -p ../src/ifcconvert/*.h /c/usr/include/IFC/ifcconvert/
+fi
+
+# ------------------------------------- compile DWG ----------------------------------------
+
+cd $DIR/repositories
+if [ ! -e dwg/build ]; then
+	echo "compile dwg"
+	mkdir dwg/build
+	cd dwg/build
+	
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release ../cmake
+	$cmakeExe --build . --config Release
+
+	d_inc=$incDir/DWG/
+	mkdir -p $d_inc
+	mkdir -p $libDir/dwg
 fi
 
 # ------------------------------------- compile PolyVR ----------------------------------------
