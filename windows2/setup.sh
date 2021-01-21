@@ -202,7 +202,7 @@ if [ ! -e oce/build ]; then
 	cd oce/build
 	
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCE_VISUALISATION=OFF -DOCE_DISABLE_TKSERVICE_FONT=ON..
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCE_VISUALISATION=OFF -DOCE_DISABLE_TKSERVICE_FONT=ON ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/OCE/
@@ -236,27 +236,27 @@ if [ ! -e ifc/build ]; then
 	mkdir -p $libDir/ifc
 	
 	cp Release/Ifc* $libDir/ifc/
-	cp -p ../src/ifcparse/*.h /c/usr/include/IFC/ifcparse/
-	cp -p ../src/ifcgeom/*.h /c/usr/include/IFC/ifcgeom/
-	cp -p ../src/ifcconvert/*.h /c/usr/include/IFC/ifcconvert/
+	cp -p ../src/ifcparse/*.h $d_inc/ifcparse/
+	cp -p ../src/ifcgeom/*.h $d_inc/ifcgeom/
+	cp -p ../src/ifcconvert/*.h $d_inc/ifcconvert/
 fi
 
 # ------------------------------------- compile DWG ----------------------------------------
 
-cd $DIR/repositories
-if [ ! -e dwg/build ]; then
-	echo "compile dwg"
-	mkdir dwg/build
-	cd dwg/build
+#cd $DIR/repositories
+#if [ ! -e dwg/build ]; then
+#	echo "compile dwg"
+#	mkdir dwg/build
+#	cd dwg/build
 	
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release ../cmake
-	$cmakeExe --build . --config Release
+#	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release ../cmake
+#	$cmakeExe --build . --config Release
 
-	d_inc=$incDir/DWG/
-	mkdir -p $d_inc
-	mkdir -p $libDir/dwg
-fi
+#	d_inc=$incDir/DWG/
+#	mkdir -p $d_inc
+#	mkdir -p $libDir/dwg
+#fi
 
 # ------------------------------------- compile PolyVR ----------------------------------------
 #rm -rf $DIR/repositories/polyvr/build
