@@ -198,12 +198,21 @@ fi
 cd $DIR/repositories
 if [ ! -e oce/build ]; then
 	echo "compile oce"
-	mkdir oce/build
-	cd oce/build
 	
+	# we have to move the oce folder because of paths lengths issues during compilation.. fck windows..
+	tmpOCE=$rootDir/tmp
+	mkdir -p $tmpOCE
+	mv $DIR/repositories/oce $tmpOCE/
+	
+	mkdir $tmpOCE/oce/build
+	cd $tmpOCE/oce/build
 	
 	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCE_VISUALISATION=OFF -DOCE_DISABLE_TKSERVICE_FONT=ON ..
 	$cmakeExe --build . --config Release
+	
+	cd $DIR/repositories
+	mv $tmpOCE/oce $DIR/repositories/
+	
 
 	d_inc=$incDir/OCE/
 	mkdir -p $d_inc
