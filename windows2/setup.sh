@@ -280,7 +280,16 @@ if [ ! -e polyvr/build ]; then
 	$cmakeExe --build . --config Release
 fi
 
-
+cd $DIR/repositories/polyvr/src/cluster
+if [ ! -e build ]; then
+	echo "compile opensg slave executable"
+	mkdir build
+	cd build
+	
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake ..
+	$cmakeExe --build . --config Release
+	cp Release/VRServer.exe ../
+fi
 
 
 
