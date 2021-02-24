@@ -34,6 +34,7 @@ apt-get update
 osgdep="osg_dependencies"
 pvrdep="pvr_dependencies"
 
+if [ $JOB == "ALL" ]; then
 while read line
 do
 apt-get -fy install $line > /dev/null
@@ -49,6 +50,7 @@ if [ $? == 0 ]; then
 echo " " $line installed
 fi
 done <$pvrdep
+fi
 fi
 
 # compile COLLADA
@@ -171,6 +173,7 @@ cd $DIR
 if [ ! -e libredwg/build ]; then
   su $SUDO_USER -c "mkdir libredwg/build"
   cd libredwg
+  sh ./autogen.sh
   ./configure --prefix=$DIR/libredwg/build/usr
   make
   make install

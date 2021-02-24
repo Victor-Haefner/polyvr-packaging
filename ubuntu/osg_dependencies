@@ -8,8 +8,8 @@ zlib1g-dev
 libjpeg8-dev 
 libjpeg-dev 
 libfreetype6-dev 
-libtiff4-dev 
-libpng12-dev 
+libtiff-dev
+libpng-dev 
 libgif-dev 
 freeglut3-dev 
 libboost-filesystem-dev 
@@ -19,7 +19,6 @@ libboost-python-dev
 libxi-dev 
 libxmu-dev 
 libboost-thread-dev 
-libcolladadom-dev 
-libgdal1-dev
+libcollada-dev
 libgdal-dev
 libqhull-dev

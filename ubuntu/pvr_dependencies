@@ -1,9 +1,7 @@
 gdebi-core
 libmicrohttpd-dev
 libjsoncpp-dev
-python-gtkglext1 
-python-vte
-glade-gnome 
+glade 
 libvte-dev 
 blender 
 doxygen 
@@ -13,15 +11,13 @@ libboost-program-options-dev
 libboost-thread-dev 
 libxml++2.6-dev 
 alacarte 
-libbullet-dev 
-libfmodex-dev
+libbullet-dev
 libgtkmm-2.4-dev
 libgtkglext1-dev
 libfreenect-dev
 libglew-dev
 libsdl1.2-dev
 libgtksourceview2.0-dev
-python-mysqldb
 libcgal-dev
 libusb-dev
 libusb-1.0-0-dev
