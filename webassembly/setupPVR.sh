@@ -41,7 +41,6 @@ if [ ! -e libxml2/build ]; then
 	cp include/libxml/xmlversion.h ../../include/libxml2/libxml/
 fi
 
-
 # --------------------- python c api
 
 cd $DIR
@@ -82,12 +81,14 @@ if [ ! -e tiff/Build ]; then
 	cd tiff
 	git checkout a6d3c1d64b655f5f151a01fda2b7b0bf50cc61aa
 	mkdir Build && cd Build
-	zlib="-DZLIB_INCLUDE_DIR=~/.emscripten_ports/zlib/zlib-version_1 -DZLIB_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libz.a"
-	imgJpg="-DJPEG_INCLUDE_DIR=~/.emscripten_ports/libjpeg/jpeg-9c -DJPEG_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libjpeg.a"
+	emsdkLibDir="$DIR/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten"
+	zlib="-DZLIB_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/zlib -DZLIB_LIBRARY_RELEASE=$emsdkLibDir/libz.a"
+	imgJpg="-DJPEG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libjpeg -DJPEG_LIBRARY_RELEASE=$emsdkLibDir/libjpeg.a"
 	emcmake cmake ../ $zlib $imgJpg # TODO: jpeg not yet taken into account..
 	emmake make -j8
 	cp port/*.a ../../lib/
 	cp libtiff/*.a ../../lib/
+	rm -rf ../../include/libtiff
 	cp -r ../libtiff ../../include/libtiff
 	cp libtiff/*.h ../../include/libtiff/
 fi
@@ -141,8 +142,8 @@ if [ ! -e gdal/gdal/build ]; then
   --with-java=no \
   --with-libjson-c=internal \
   --with-libz=no \
-  --with-libz_include="-I$HOME/.emscripten_ports/zlib/zlib-version_1" \
-  --with-libz_lib="-L$HOME/.emscripten_cache/wasm-obj" \
+  --with-libz_include="-I$DIR/emsdk/upstream/emscripten/cache/ports-builds/zlib" \
+  --with-libz_lib="-L$DIR/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten" \
   --with-hdf5=no \
   --with-expat=no \
   --with-oci=no \
@@ -169,9 +170,29 @@ cd $DIR
 if [ ! -e polyvr ]; then
 	echo "--- setup polyvr ---"
 	git clone https://github.com/Victor-Haefner/polyvr.git
+fi
+
+if [ ! -e polyvr/build ]; then
 	cd polyvr
 	mkdir build && cd build
 	emcmake cmake ../
 	emmake make -j8 # VERBOSE=1
 	#emmake make -j8 && ../../pvr/hack_polyvr_js.sh && cp polyvr.* ../../pvr/
 fi
+
+# HINTS when missing symbols:
+
+#  search for a symbol:
+#    grep SYMBOL lib/*
+
+#  use llvm-nm to check the kind of symbol
+#    emsdk/upstream/bin/llvm-nm lib/LIBRARY.a | grep SYMBOL
+
+
+
+
+
+
+
+
+

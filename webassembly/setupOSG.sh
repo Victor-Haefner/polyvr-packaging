@@ -59,14 +59,6 @@ if [ ! -e lib/libboost_system.a ]; then
 	emar q ../lib/libboost_serialization.a $serializationBC
 fi
 
-if [ ! -e ~/.emscripten_ports/libpng/libpng-version_1/pnglibconf.h ]; then
-	cp ~/.emscripten_ports/libpng/libpng-version_1/scripts/pnglibconf.h.prebuilt ~/.emscripten_ports/libpng/libpng-version_1/pnglibconf.h
-fi
-
-if [ ! -e ~/.emscripten_ports/libjpeg/jpeg-9c/jconfig.h ]; then
-	cp ~/.emscripten_cache/wasm-obj/ports-builds/libjpeg/jconfig.h ~/.emscripten_ports/libjpeg/jpeg-9c/jconfig.h
-fi
-
 
 # ------------------------------- OpenSG
 echo "setup opensg"
@@ -84,18 +76,19 @@ if [ ! -e OpenSG/build ]; then
 	#flags2="-DOSG_OGL_COREONLY=ON -DOSG_USE_OGLES_PROTOS=ON -DOSG_OGL_ES2=ON -DOSG_OGL_NO_DOUBLE=ON"
 	flags2="-DOSG_OGL_COREONLY=ON -DOSG_OGL_ES2=ON -DOSG_OGL_NO_DOUBLE=ON"
 	#toolchainPath=	
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=../emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_MODULE_PATH=../emsdk/upstream/emscripten/cmake/Modules"
-	zlib="-DZLIB_INCLUDE_DIR=~/.emscripten_ports/zlib/zlib-version_1 -DZLIB_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libz.a"
-	boost="-DBOOST_ROOT=~/.emscripten_ports/boost_headers -DBoost_FILESYSTEM_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libboost_headers.a -DBoost_SYSTEM_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libboost_headers.a -DBoost_FILESYSTEM_LIBRARY_DEBUG=~/.emscripten_cache/wasm-obj/libboost_headers.a -DBoost_SYSTEM_LIBRARY_DEBUG=~/.emscripten_cache/wasm-obj/libboost_headers.a"
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=$DIR/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_MODULE_PATH=$DIR/emsdk/upstream/emscripten/cmake/Modules"
+	emsdkLibDir="$DIR/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten"	
+	zlib="-DZLIB_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/zlib -DZLIB_LIBRARY_RELEASE=$emsdkLibDir/libz.a"
+	bLib="$emsdkLibDir/libboost_headers.a"
+	bRoot="$DIR/emsdk/upstream/emscripten/cache/ports-builds/boost_headers"	
+	boost="-DBOOST_ROOT=$bRoot -DBoost_FILESYSTEM_LIBRARY_RELEASE=$bLib -DBoost_SYSTEM_LIBRARY_RELEASE=$bLib -DBoost_FILESYSTEM_LIBRARY_DEBUG=$bLib -DBoost_SYSTEM_LIBRARY_DEBUG=$bLib"
 	glut="-DGLUT_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/system/include -DGLUT_glut_LIBRARY=1 -DGLUT_Xi_LIBRARY=1 -DGLUT_Xmu_LIBRARY=1"
-	imgPng="-DPNG_INCLUDE_DIR=~/.emscripten_ports/libpng/libpng-version_1 -DPNG_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libpng.a"
-	imgJpg="-DJPEG_INCLUDE_DIR=~/.emscripten_ports/libjpeg/jpeg-9c -DJPEG_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libjpeg.a"
+	imgPng="-DPNG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libpng -DPNG_LIBRARY_RELEASE=$emsdkLibDir/libpng.a"
+	imgJpg="-DJPEG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libjpeg -DJPEG_LIBRARY_RELEASE=$emsdkLibDir/libjpeg.a"
 	cmd="emcmake cmake $flags $flags2 $toolchain $zlib $boost $glut $imgPng $imgJpg"
 	echo $cmd
 	echo
 	$cmd
-
-	#emcmake cmake -Wno-dev -H. -Bbuild -DWASM=1 -DOSGBUILD_TESTS=OFF -DOSGBUILD_OSGContribCgFX=0 -DCMAKE_BUILD_TYPE=Release -DOSGBUILD_OSGContribCSM=0 -DOSGBUILD_OSGContribCSMSimplePlugin=0 -DCMAKE_TOOLCHAIN_FILE="../emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" -DCMAKE_MODULE_PATH="../emsdk/upstream/emscripten/cmake/Modules" -DZLIB_INCLUDE_DIR="~/.emscripten_ports/zlib/zlib-version_1" -DZLIB_LIBRARY_RELEASE="~/.emscripten_cache/wasm-obj/libz.a" -DBOOST_ROOT="~/.emscripten_ports/boost_headers" -DBoost_FILESYSTEM_LIBRARY_RELEASE="~/.emscripten_cache/wasm-obj/libboost_headers.a" -DBoost_SYSTEM_LIBRARY_RELEASE="~/.emscripten_cache/wasm-obj/libboost_headers.a" -DGLUT_INCLUDE_DIR="/home/victor/Projects/viewbw/WebAssemblyTest/emsdk/upstream/emscripten/system/include" -DGLUT_glut_LIBRARY_RELEASE=""
 
 	cd build
 	emmake make -j8
