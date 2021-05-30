@@ -15,12 +15,20 @@ do
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR
+DIRtmp=$DIR
+
+echo "--- setup Boost --- $DIR"
 
 source emsdk/emsdk_env.sh --build=Release
+DIR=$DIRtmp
 
 # --------------------- boost filesystem and boost system
 
 cd $DIR
+if [ ! -e lib ]; then
+	mkdir lib
+fi
+
 if [ ! -e boost ]; then
 	echo "get boost source"
 	git clone https://github.com/boostorg/boost
@@ -33,12 +41,18 @@ if [ ! -e lib/libboost_system.a ]; then
 	echo "setup boost libs"
 	cd $DIR/boost
 	./bootstrap.sh --prefix=../
+	echo " ---- bootstrap done ----"
 	#./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static system thread program_options serialization filesystem regex
 	./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static system program_options serialization filesystem
+	echo " ---- b2 done ----"
 	systemBC="$( find . -name libboost_system.bc )" 
 	filesystemBC="$( find . -name libboost_filesystem.bc )" 
 	programoptionsBC="$( find . -name libboost_program_options.bc )"
 	serializationBC="$( find . -name libboost_serialization.bc )"
+	echo " -- systemBC: $systemBC"
+	echo " -- filesystemBC: $filesystemBC"
+	echo " -- programoptionsBC: $programoptionsBC"
+	echo " -- serializationBC: $serializationBC"
 	emar q ../lib/libboost_system.a $systemBC
 	emar q ../lib/libboost_filesystem.a $filesystemBC
 	emar q ../lib/libboost_program_options.a $programoptionsBC

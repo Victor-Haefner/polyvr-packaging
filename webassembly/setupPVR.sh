@@ -13,8 +13,10 @@ do
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR
+DIRtmp=$DIR
 
 source emsdk/emsdk_env.sh --build=Release
+DIR=$DIRtmp
 
 # --------------------- libxml2
 
@@ -25,11 +27,15 @@ if [ ! -e libxml2 ]; then
 fi
 
 if [ ! -e libxml2/build ]; then
+	echo "--- setup libxml2 ---"
 	cd libxml2
 	./autogen.sh
+	rm config.status
 	mkdir build && cd build
-	emconfigure ../configure --without-python
+	emconfigure ../configure --without-python --disable-shared
+	echo "--- libxml2 emconfigure done ---"
 	emmake make
+	echo "--- libxml2 emmake done ---"
 	cp .libs/*.a ../../lib
 	cp -r ../include ../../include/libxml2
 	cp include/libxml/xmlversion.h ../../include/libxml2/libxml/
@@ -42,30 +48,39 @@ cd $DIR
 if [ ! -e cpython ]; then
 	echo "get cpython source"
 	git clone --branch 2.7 https://github.com/Victor-Haefner/cpython.git
+	sed -i 's/#define HAVE_POPEN      1/#undef HAVE_POPEN/g' cpython/Modules/posixmodule.c
 fi
 
-# TODO: python currently compiles with -g flag (debug)
+# TODO: python currently compiles with -g flag (debug)    ..test if this is still the case
 if [ ! -e cpython/build ]; then
+	echo "--- setup cpython ---"
 	cd cpython
 	mkdir build && cd build
-	emconfigure ../configure
+	emconfigure ../configure --with-ensurepip=no --enable-optimizations --with-lto --with-threads=no
+
+	sed -i 's/#define HAVE_PLOCK 1/#undef HAVE_PLOCK/g' pyconfig.h
+	sed -i 's/#define HAVE_INITGROUPS 1/#undef HAVE_INITGROUPS/g' pyconfig.h
+
+	touch ../Python/pythonrun.c
 	emmake make
 	cp libpython2.7.a ../../lib
 	cp -r ../Include ../../include/Python
 	cp pyconfig.h ../../include/Python/
 fi
 
-
 # --------------------- lib tiff # TODO: move this to setupOSG
 
 cd $DIR
 if [ ! -e tiff ]; then
 	echo "get tiff source"
+	#git clone https://gitlab.com/libtiff/libtiff.git tiff --branch v4.1.0
 	git clone https://gitlab.com/libtiff/libtiff.git tiff
 fi
 
 if [ ! -e tiff/Build ]; then
+	echo "--- setup tiff ---"
 	cd tiff
+	git checkout a6d3c1d64b655f5f151a01fda2b7b0bf50cc61aa
 	mkdir Build && cd Build
 	zlib="-DZLIB_INCLUDE_DIR=~/.emscripten_ports/zlib/zlib-version_1 -DZLIB_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libz.a"
 	imgJpg="-DJPEG_INCLUDE_DIR=~/.emscripten_ports/libjpeg/jpeg-9c -DJPEG_LIBRARY_RELEASE=~/.emscripten_cache/wasm-obj/libjpeg.a"
@@ -76,7 +91,6 @@ if [ ! -e tiff/Build ]; then
 	cp -r ../libtiff ../../include/libtiff
 	cp libtiff/*.h ../../include/libtiff/
 fi
-
 
 # --------------------- lib gdal
 
@@ -91,9 +105,9 @@ if [ ! -e gdal/proj ]; then
 	git clone https://github.com/Victor-Haefner/PROJ.git gdal/proj
 fi
 
-
 cd $DIR
 if [ ! -e gdal/proj/build ]; then
+	echo "--- setup gdal proj ---"
 	cd gdal/proj
 	mkdir build && cd build
 	emcmake cmake ../ -DWITHOUT_SQLITE=1 -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="../../../include/libtiff" -DTIFF_LIBRARY="../../../lib/libtiffxx.a"
@@ -106,7 +120,9 @@ fi
 
 cd $DIR	
 if [ ! -e gdal/gdal/build ]; then
+	echo "--- setup gdal ---"
 	cd gdal/gdal # configure needs to run in this folder!
+	mkdir build # still, make the directory to make the if condition working
 	emconfigure ./configure \
   --with-python=no \
   --with-crypto=no \
@@ -151,11 +167,11 @@ fi
 
 cd $DIR
 if [ ! -e polyvr ]; then
-	echo "get polyvr source"
+	echo "--- setup polyvr ---"
 	git clone https://github.com/Victor-Haefner/polyvr.git
 	cd polyvr
 	mkdir build && cd build
 	emcmake cmake ../
-	emmake make -j8
+	emmake make -j8 # VERBOSE=1
 	#emmake make -j8 && ../../pvr/hack_polyvr_js.sh && cp polyvr.* ../../pvr/
 fi

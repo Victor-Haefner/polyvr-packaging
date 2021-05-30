@@ -1,3 +1,11 @@
+This is a guide to compile PolyVR for Webassembly
+
+1) run setup.sh
+
+
+
+
+
 compilation commands:
 
 sdl:
