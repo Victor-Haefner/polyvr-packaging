@@ -13,4 +13,6 @@ include
 /boost
 /libxml2
 /debug
+/tiff
+/gdal
 pytest/build

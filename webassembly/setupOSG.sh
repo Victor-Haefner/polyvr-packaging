@@ -59,6 +59,11 @@ if [ ! -e lib/libboost_system.a ]; then
 	emar q ../lib/libboost_serialization.a $serializationBC
 fi
 
+d_inc=$DIR/include/boost_headers
+mkdir -p $d_inc
+rm -rf $d_inc/*
+find boost/libs -name "include" -exec cp -r {}/boost/ $d_inc/ \;
+
 
 # ------------------------------- OpenSG
 echo "setup opensg"
@@ -79,9 +84,12 @@ if [ ! -e OpenSG/build ]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=$DIR/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_MODULE_PATH=$DIR/emsdk/upstream/emscripten/cmake/Modules"
 	emsdkLibDir="$DIR/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten"	
 	zlib="-DZLIB_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/zlib -DZLIB_LIBRARY_RELEASE=$emsdkLibDir/libz.a"
-	bLib="$emsdkLibDir/libboost_headers.a"
-	bRoot="$DIR/emsdk/upstream/emscripten/cache/ports-builds/boost_headers"	
-	boost="-DBOOST_ROOT=$bRoot -DBoost_FILESYSTEM_LIBRARY_RELEASE=$bLib -DBoost_SYSTEM_LIBRARY_RELEASE=$bLib -DBoost_FILESYSTEM_LIBRARY_DEBUG=$bLib -DBoost_SYSTEM_LIBRARY_DEBUG=$bLib"
+	#bLib="$emsdkLibDir/libboost_headers.a"
+	#bRoot="$DIR/emsdk/upstream/emscripten/cache/ports-builds/boost_headers"	
+	bFsLib="../lib/libboost_filesystem.a"
+	bSyLib="../lib/libboost_system.a"
+	bRoot="../include/boost_headers"	
+	boost="-DBOOST_ROOT=$bRoot -DBoost_FILESYSTEM_LIBRARY_RELEASE=$bFsLib -DBoost_SYSTEM_LIBRARY_RELEASE=$bSyLib -DBoost_FILESYSTEM_LIBRARY_DEBUG=$bFsLib -DBoost_SYSTEM_LIBRARY_DEBUG=$bSyLib"
 	glut="-DGLUT_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/system/include -DGLUT_glut_LIBRARY=1 -DGLUT_Xi_LIBRARY=1 -DGLUT_Xmu_LIBRARY=1"
 	imgPng="-DPNG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libpng -DPNG_LIBRARY_RELEASE=$emsdkLibDir/libpng.a"
 	imgJpg="-DJPEG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libjpeg -DJPEG_LIBRARY_RELEASE=$emsdkLibDir/libjpeg.a"

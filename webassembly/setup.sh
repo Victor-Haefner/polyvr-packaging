@@ -21,3 +21,6 @@ cd $DIR
 
 cd $DIR
 ./setupPVR.sh
+
+cd $DIR
+./deployWasm.sh
