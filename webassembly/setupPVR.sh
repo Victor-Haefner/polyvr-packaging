@@ -163,16 +163,33 @@ if [ ! -e gdal/gdal/build ]; then
 	#cp port/*.h ../../include/gdal/ #test
 fi
 
+# --------------------- cgal   TODO: needs gmp and mpfr
+
+#cd $DIR
+#if [ ! -e cgal ]; then
+#	echo "--- clone cgal ---"
+#	git clone https://github.com/Victor-Haefner/cgal.git --branch v4.14.3
+#fi
+
+#cd $DIR
+#if [ ! -e include/CGAL ]; then
+#	echo "--- copy cgal headers ---"
+#	mkdir $DIR/include/CGAL
+#	for f in cgal/*/include/CGAL/*; do
+#		cp -rf "$f" $DIR/include/CGAL/
+#	done
+#fi
 
 # --------------------- polyvr
 
 cd $DIR
 if [ ! -e polyvr ]; then
-	echo "--- setup polyvr ---"
+	echo "--- clone polyvr ---"
 	git clone https://github.com/Victor-Haefner/polyvr.git
 fi
 
 if [ ! -e polyvr/build ]; then
+	echo "--- compile polyvr ---"
 	cd polyvr
 	mkdir build && cd build
 	emcmake cmake ../
