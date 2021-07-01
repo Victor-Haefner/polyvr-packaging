@@ -112,6 +112,7 @@ if [ ! -e gdal/proj/build ]; then
 	cd gdal/proj
 	mkdir build && cd build
 	emcmake cmake ../ -DWITHOUT_SQLITE=1 -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="../../../include/libtiff" -DTIFF_LIBRARY="../../../lib/libtiffxx.a"
+	# comment #define HAVE_LIBDL 1	in proj_config.h
 	emmake make -j8
 	cp lib/libproj.a ../../../lib/
 	cp -r ../src ../../../include/libproj
