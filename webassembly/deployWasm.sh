@@ -11,23 +11,22 @@ do
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-
 if [ ! -e webBuild ]; then
 	git clone https://github.com/Victor-Haefner/polyvr-webport.git webBuild
 fi
 
-if [ ! -e polyvr/build/polyvr.wasm ]; then
-	echo "did not find polyvr/build/polyvr.wasm, maybe compilation failed?"
-	exit 0
-fi
+copyFile() {
+	if [ ! -e $1 ]; then
+		echo "did not find polyvr $1, maybe compilation failed?"
+		exit 0
+	fi
 
-if [ ! -e polyvr/build/polyvr.js ]; then
-	echo "did not find polyvr/build/polyvr.js, maybe compilation failed?"
-	exit 0
-fi
+	cp $1 webBuild/
+}
 
-cp polyvr/build/polyvr.wasm webBuild/
-cp polyvr/build/polyvr.js webBuild/
+copyFile polyvr/build/polyvr.wasm
+copyFile polyvr/build/polyvr.js
+copyFile include/libproj/proj.db
 
 cd webBuild
 ./hack_polyvr_js.sh

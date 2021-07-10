@@ -106,18 +106,42 @@ if [ ! -e gdal/proj ]; then
 	git clone https://github.com/Victor-Haefner/PROJ.git gdal/proj
 fi
 
+if [ ! -e sqlite ]; then
+	echo "get sqlite proj source"
+	git clone https://github.com/sqlite/sqlite.git sqlite
+fi
+
+cd $DIR	
+if [ ! -e sqlite/build ]; then
+	echo "--- setup sqlite ---"
+	cd sqlite
+	mkdir build && cd build
+	../configure --disable-shell
+	make
+	emconfigure ../configure --disable-shell
+	emmake make
+	cp .libs/*.a ../../lib/
+	mkdir ../../include/libsqlite
+	cp *.h ../../include/libsqlite/
+fi
+
 cd $DIR
 if [ ! -e gdal/proj/build ]; then
 	echo "--- setup gdal proj ---"
 	cd gdal/proj
 	mkdir build && cd build
-	emcmake cmake ../ -DWITHOUT_SQLITE=1 -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="../../../include/libtiff" -DTIFF_LIBRARY="../../../lib/libtiffxx.a"
+	cmake ../ -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0
+	make generate_proj_db
+	rm CMakeCache.txt
+	emcmake cmake ../ -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="../../../include/libtiff" -DTIFF_LIBRARY="../../../lib/libtiffxx.a" -DWITHOUT_SQLITE=1 -DSQLITE3_LIBRARY="../../../lib/libsqlite3.a" -DSQLITE3_INCLUDE_DIR="../../../include/libsqlite"
+	#emcmake cmake ../ -DWITHOUT_SQLITE=1 -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="../../../include/libtiff" -DTIFF_LIBRARY="../../../lib/libtiffxx.a"
 	# comment #define HAVE_LIBDL 1	in proj_config.h
-	emmake make -j8
+	emmake make -j8 proj
 	cp lib/libproj.a ../../../lib/
 	cp -r ../src ../../../include/libproj
 	cp src/*.h ../../../include/libproj/
 	cp -r ../include/proj ../../../include/libproj/
+	cp data/for_tests/proj.db ../../../include/libproj/
 fi
 
 cd $DIR	
@@ -155,8 +179,7 @@ if [ ! -e gdal/gdal/build ]; then
   --with-grass=no \
   --with-spatialite=no \
   --with-freexl=no
-	emmake make -j8
-        emmake make force-lib
+	emmake make -j8 static-lib
 	cp libgdal.a ../../lib/
 	mkdir ../../include/gdal
 	find . -name "*.h" -exec cp {} ../../include/gdal/ \;
