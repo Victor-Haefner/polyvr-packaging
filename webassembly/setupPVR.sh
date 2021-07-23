@@ -2,6 +2,8 @@
 
 # call setupOSG.sh first!
 
+sudo apt install sqlite3
+
 # get script directory
 SOURCE="${BASH_SOURCE[0]}"
 DIR="$( dirname "$SOURCE" )"
