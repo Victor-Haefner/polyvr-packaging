@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=1.1.1
+root=PolyVR-$version
+basedir=`pwd`
+rpmroot=$basedir/PolyVR_rpmbuild
+buildroot=$rpmroot/rpmbuild
+pvr_base="../../polyvr"
+
+rm -rf $root
+rm -rf $buildroot
+mkdir $root
+mkdir -p $buildroot/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+# files
+d_usr=$root/usr/
+d_bin=$root/usr/bin/
+mkdir -p $d_bin
+
+cp PolyVR.sh $root/usr/bin/polyvr
+cp $pvr_base/build/*.bin $root/usr/bin/
+cp $pvr_base/build/icudtl.dat $root/usr/bin/
+objcopy --strip-debug --strip-unneeded $pvr_base/build/polyvr $d_bin/polyvr-bin
+find $d_usr -type f -exec chmod 644 {} \;
+chmod 755 $d_bin/*
+
+# ressources
+d_res=$root/usr/share/polyvr
+mkdir -p $d_res
+cp -r ../../polyvr/examples $d_res/
+cp -r ../../polyvr/setup $d_res/
+cp -R ../../polyvr/ressources $d_res/
+cp -R ../../polyvr/shader $d_res/
+cp -R ../../polyvr/doc $d_res/
+#cp -R ../../polyvr/extras $d_res/
+find $d_res -name "*~" -exec rm {} \;
+
+chown -R root $root
+chgrp -R root $root
+
+cd $root
+files=$(find -L -type f)
+files=${files//.\/usr/\/usr}
+cd $basedir
+echo "$files"
+
+#spec file
+/bin/cat <<EOM >$buildroot/SPECS/PolyVR.spec
+Name: PolyVR
+Version: $version
+Release: 1%{?dist}
+Summary: PolyVR
+ExclusiveArch: x86_64        
+License: GPLV3
+URL: https://github.com/Victor-Haefner/polyvr
+Source0: $root.tar.gz
+Requires: python2-devel.x86_64, libcurl-devel.x86_64, libxml2-devel.x86_64, jsoncpp-devel.x86_64, gtk3-devel.x86_64, python2-numpy.x86_64, libssh2-devel, lapack-devel.x86_64, raptor2-devel.x86_64, fftw-devel.x86_64, libXScrnSaver.x86_64
+
+%description
+PolyVR is a virtual reality authoring system.  
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr
+cp -r $basedir/$root/usr/* %{buildroot}/usr/
+
+%files
+$files
+
+%clean
+rm -rf %{buildroot}
+
+%changelog
+* Wed Nov 24 2021 Victor Haefner
+- First package
+EOM
+
+
+# finalize package
+echo 'check spec file..'
+rpmlint $buildroot/SPECS/PolyVR.spec
+echo 'build rpm..'
+QA_RPATHS=$(( 0x0001|0x0002|0x0004|0x0010 )) rpmbuild --define "_topdir $buildroot" -v -bb $buildroot/SPECS/PolyVR.spec
+cp $buildroot/RPMS/x86_64/*.rpm ./
+
+# cleanup
+rm -rf $root
+rm -rf $rpmroot
+
+# install package with
+#  sudo rpm -i PolyVR-1.1.1-1.el8.x86_64.rpm --nodeps --force
+
+
+
+
+

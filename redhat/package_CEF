@@ -80,7 +80,7 @@ QA_RPATHS=$(( 0x0001|0x0002|0x0010 )) rpmbuild --define "_topdir $buildroot" -v 
 cp $buildroot/RPMS/x86_64/*.rpm ./
 
 # cleanup
-#rm -rf $rpmroot
+rm -rf $rpmroot
 
 # install package with
 #  sudo rpm -i CEF-3.1750.1738-1.el8.x86_64.rpm --nodeps --force

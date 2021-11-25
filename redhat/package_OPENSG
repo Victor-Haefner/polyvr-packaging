@@ -56,6 +56,7 @@ ExclusiveArch: x86_64
 License: LGPL
 URL: http://www.opensg.org/
 Source0: $root.tar.gz
+Requires: freeglut-devel.x86_64, libjpeg-turbo-devel.x86_64, libpng-devel.x86_64, libtiff-devel.x86_64, boost-devel.x86_64, freetype-devel.x86_64, libXi-devel.x86_64, libXmu-devel.x86_64, fontconfig-devel.x86_64
 
 %description
 OpenSG is a portable scenegraph system to create realtime graphics 
