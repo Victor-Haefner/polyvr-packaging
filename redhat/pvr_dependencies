@@ -1,0 +1,11 @@
+python2-devel.x86_64
+libcurl-devel.x86_64
+libxml2-devel.x86_64
+jsoncpp-devel.x86_64
+gtk3-devel.x86_64
+python2-numpy.x86_64
+libssh2-devel
+lapack-devel.x86_64
+raptor2-devel.x86_64
+fftw-devel.x86_64
+libXScrnSaver.x86_64

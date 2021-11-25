@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=2.0.0
+root=OpenSG-2.0.0
+basedir=`pwd`
+rpmroot=$basedir/OpenSG_rpmbuild
+buildroot=$rpmroot/rpmbuild
+
+rm -rf $root
+rm -rf $buildroot
+mkdir $root
+mkdir -p $buildroot/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+# libraries and header files
+d_usr=$root/usr/
+d_lib=$root/usr/lib
+d_inc=$root/usr/include/OpenSG/
+mkdir -p $d_lib
+mkdir -p $d_inc
+
+find OpenSG/Source -name "*.h" -exec cp {} $d_inc \;
+find OpenSG/Source -name "*.inl" -exec cp {} $d_inc \;
+find OpenSG/build/Source -name "*.h" -exec cp {} $d_inc \;
+cp OpenSG/Source/WindowSystem/X/OSGNativeWindow.h $d_inc
+cp -R OpenSG/build/bin $d_lib/opensg
+rm $root/usr/lib/opensg/osg2-config
+find $d_lib -name "*.so.*" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
+find $d_usr -type f -exec chmod 644 {} \;
+
+chown -R root $root
+chgrp -R root $root
+
+tar --create --file $root.tar.gz $root
+mv $root.tar.gz $buildroot/SOURCES/
+
+cd $root
+files=$(find -L -type f)
+files=${files//.\/usr/\/usr}
+cd $basedir
+echo "$files"
+
+
+#spec file
+/bin/cat <<EOM >$buildroot/SPECS/OpenSG.spec
+Name: OpenSG
+Version: $version
+Release: 1%{?dist}
+Summary: OpenSG development package
+ExclusiveArch: x86_64        
+License: LGPL
+URL: http://www.opensg.org/
+Source0: $root.tar.gz
+
+%description
+OpenSG is a portable scenegraph system to create realtime graphics 
+programs, e.g. for virtual reality applications. It is developed 
+following Open Source principles ( LGPL) and can be used freely. 
+It runs on Windows, Linux, Solaris and MacOS X and is based on  
+OpenGL. It is used in a number of projects and places to do many 
+different things, all of them cool. :-) 
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/lib
+mkdir -p %{buildroot}/usr/include
+cp -r $basedir/$root/usr/lib/opensg %{buildroot}/usr/lib/opensg
+cp -r $basedir/$root/usr/include/OpenSG %{buildroot}/usr/include/OpenSG
+
+%files
+$files
+
+%clean
+rm -rf %{buildroot}
+
+%changelog
+* Wed Nov 24 2021 Victor Haefner
+- First package
+EOM
+
+
+# finalize package
+echo 'check spec file..'
+rpmlint $buildroot/SPECS/OpenSG.spec
+echo 'build rpm..'
+QA_RPATHS=$(( 0x0001|0x0002|0x0010 )) rpmbuild --define "_topdir $buildroot" -v -bb $buildroot/SPECS/OpenSG.spec
+cp $buildroot/RPMS/x86_64/*.rpm ./
+
+# cleanup
+rm -rf $root
+rm -rf $rpmroot
+
+# install package with
+#  sudo rpm -i OpenSG-2.0.0-1.el8.x86_64.rpm --nodeps --force
+

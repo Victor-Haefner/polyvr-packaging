@@ -1,0 +1,14 @@
+git
+gitk
+cmake
+rpmdevtools
+rpmlint
+freeglut-devel.x86_64
+libjpeg-turbo-devel.x86_64
+libpng-devel.x86_64
+libtiff-devel.x86_64
+boost-devel.x86_64
+freetype-devel.x86_64
+libXi-devel.x86_64
+libXmu-devel.x86_64
+fontconfig-devel.x86_64

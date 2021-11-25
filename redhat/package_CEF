@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# check for root rights
+if [ `whoami` != root ]; then
+echo This script needs root permissions
+exit 5
+fi
+
+version=3.1750.1738
+root=CEF-$version
+basedir=`pwd`
+rpmroot=$basedir/CEF_rpmbuild
+buildroot=$rpmroot/rpmbuild
+
+rm -rf $buildroot
+mkdir -p $buildroot/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+
+tar --create --file $root.tar.gz CEF
+mv $root.tar.gz $buildroot/SOURCES/
+
+cd CEF
+files=$(find -L -type f)
+files=${files//.\/usr/\/usr}
+cd $basedir
+echo "$files"
+
+
+#spec file
+/bin/cat <<EOM >$buildroot/SPECS/CEF.spec
+Name: CEF
+Version: $version
+Release: 1%{?dist}
+Summary: CEF development package
+ExclusiveArch: x86_64        
+License: LGPL
+URL: http://www.cef.org/
+Source0: $root.tar.gz
+
+%description
+The Chromium Embedded Framework (CEF) is a simple framework 
+for embedding Chromium-based browsers in other applications. 
+Unlike the Chromium project itself, which focuses mainly on 
+Google Chrome application development, CEF focuses on 
+facilitating embedded browser use cases in third-party 
+applications. CEF insulates the user from the underlying 
+Chromium and Blink code complexity by offering production-
+quality stable APIs, release branches tracking specific 
+Chromium releases, and binary distributions. Most features 
+in CEF have default implementations that provide rich 
+functionality while requiring little or no integration work 
+from the user. There are currently over 100 million installed 
+instances of CEF around the world embedded in products from 
+a wide range of companies and industries.
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/lib
+mkdir -p %{buildroot}/usr/include
+cp -r $basedir/CEF/usr/lib/CEF %{buildroot}/usr/lib/CEF
+cp -r $basedir/CEF/usr/include/CEF %{buildroot}/usr/include/CEF
+
+%files
+$files
+
+%clean
+rm -rf %{buildroot}
+
+%changelog
+* Wed Nov 24 2021 Victor Haefner
+- First package
+EOM
+
+
+# finalize package
+echo 'check spec file..'
+rpmlint $buildroot/SPECS/CEF.spec
+echo 'build rpm..'
+QA_RPATHS=$(( 0x0001|0x0002|0x0010 )) rpmbuild --define "_topdir $buildroot" -v -bb $buildroot/SPECS/CEF.spec
+cp $buildroot/RPMS/x86_64/*.rpm ./
+
+# cleanup
+#rm -rf $rpmroot
+
+# install package with
+#  sudo rpm -i CEF-3.1750.1738-1.el8.x86_64.rpm --nodeps --force
