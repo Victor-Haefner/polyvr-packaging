@@ -15,6 +15,10 @@ if [ ! -e webBuild ]; then
 	git clone https://github.com/Victor-Haefner/polyvr-webport.git webBuild
 fi
 
+cd webBuild
+git pull
+cd $DIR
+
 copyFile() {
 	if [ ! -e $1 ]; then
 		echo "did not find polyvr $1, maybe compilation failed?"
