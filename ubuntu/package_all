@@ -6,6 +6,8 @@ echo This script needs root permissions
 exit 5
 fi
 
+apt install chrpath lintian
+
 #./package_VIVE
 #./package_VIRT
 ./package_STEP
@@ -17,6 +19,7 @@ fi
 ./package_COLLADA
 ./package_IFC
 ./package_VRPN
+./package_DWG
 
 gdebi -n libstep-dev.deb
 gdebi -n liboce-dev.deb
@@ -25,6 +28,7 @@ gdebi -n libcollada-dev.deb
 gdebi -n libifc-dev.deb
 gdebi -n libvrpn-dev.deb
 gdebi -n libopensg-dev.deb
+gdebi -n libredwg-dev.deb
 
 
 
