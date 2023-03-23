@@ -4,11 +4,6 @@
 #  install Visual Studio 2019
 #  install python 3.8
 
-# TODO
-#  after first run of the cef cmake stuff
-#   change /MT to /MD in
-#    third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/cmake/cef_variables.cmake
-
 source utils.sh
 
 DIR=$(getExecutionDir)
@@ -18,7 +13,7 @@ echo " Build generator: $GENERATOR"
 
 
 # change the disk as required
-rootDir="/d"
+rootDir="/c"
 if [ ! -e $rootDir ]; then
 	rootDir="/c"
 fi
@@ -78,7 +73,9 @@ fi
 ./vcpkg.exe install openal-soft:x64-windows
 #./vcpkg.exe install collada-dom:x64-windows   # segfaults in DAE::open, building from source down below
 ./vcpkg.exe install bullet3:x64-windows
-./vcpkg.exe install gtk:x64-windows
+cp $vcpkgDir/installed/x64-windows/lib/libxml2.lib $vcpkgDir/installed/x64-windows/lib/xml2.lib #  gettext failes without the file xml2.lib
+./vcpkg.exe install gtk3:x64-windows
+cp $vcpkgDir/installed/x64-windows/lib/qhull_r.lib $vcpkgDir/installed/x64-windows/lib/qhullstatic_r.lib #  opensg expects qhullstatic_r.lib
 
 # when using vcpkg collada
 #cp buildtrees/collada-dom/x64-windows-rel/dom/src/1.4/colladadom141.lib $vcpkgLibDir/
@@ -86,6 +83,11 @@ fi
 
 cmakeExe=$vcpkgDir/$(find ./downloads/tools -name cmake.exe | tail -n 1)
 echo " using cmake: $cmakeExe"
+echo " using generator: $GENERATOR"
+echo " directories:"
+echo "  vcpkgDir: $vcpkgDir"
+echo "  incDir: $incDir"
+echo "  libDir: $libDir"
 
 # ------------------------------------- compile COLLADA ----------------------------------------
 #rm -rf $DIR/repositories/collada/build
@@ -113,6 +115,8 @@ fi
 # ------------------------------------- compile OpenSG ----------------------------------------
 #rm -rf $DIR/repositories/opensg/build
 
+echo "$cmakeExe -G \"$GENERATOR\" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$incDir/Collada -DCOLLADA_DOM_INCLUDE_DIR=$incDir/Collada/1.4 -DCOLLADA_LIBRARY_RELEASE=$libDir/collada/collada-dom2.5-dp-vc100-mt.lib -DOSG_WITH_COLLADA_NAMESPACE=ON .."
+
 cd $DIR/repositories
 if [ ! -e opensg/build ]; then
 	echo "compile opensg"
@@ -134,7 +138,7 @@ if [ ! -e opensg/build ]; then
 	find Source -name "*.h" -exec cp {} $d_inc \;
 	find Source -name "*.inl" -exec cp {} $d_inc \;
 	find build/Source -name "*.h" -exec cp {} $d_inc \;
-	cp Source/WindowSystem/X/OSGNativeWindow.h $d_inc
+	cp Source/WindowSystem/WIN32/OSGNativeWindow.h $d_inc
 	cp -r build/bin/Release/* $libDir/opensg/
 fi
 
@@ -159,6 +163,8 @@ fi
 
 # ------------------------------------- compile CEF ----------------------------------------
 #rm -rf $DIR/repositories/cef/build
+
+echo "$cmakeExe -G \"$GENERATOR\" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DCEF_RUNTIME_LIBRARY_FLAG=/MD -DUSE_SANDBOX=Off .."
 	
 cd $DIR/repositories
 if [ ! -e cef/build ]; then
@@ -166,7 +172,7 @@ if [ ! -e cef/build ]; then
 	mkdir cef/build
 	cd cef/build
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake ..
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DCEF_RUNTIME_LIBRARY_FLAG=";/MD" -DUSE_SANDBOX=Off ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/CEF/
@@ -174,10 +180,10 @@ if [ ! -e cef/build ]; then
 	mkdir -p $libDir/cef
 	
 	cd $DIR/repositories/cef
-	cp -r third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/include $d_inc/;
+	cp -r third_party/cef/*/include $d_inc/;
 	cp -r build/Release/* $libDir/cef/
 	cp -r build/libcef_dll_wrapper/Release/* $libDir/cef/
-	cp third_party/cef/cef_binary_81.2.24+gc0b313d+chromium-81.0.4044.113_windows64/Release/libcef.lib $libDir/cef/
+	cp third_party/cef/*/Release/libcef.lib $libDir/cef/
 fi
 # TODO: copy pak files!
 
