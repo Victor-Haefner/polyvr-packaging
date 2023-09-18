@@ -74,7 +74,7 @@ fi
 #./vcpkg.exe install collada-dom:x64-windows   # segfaults in DAE::open, building from source down below
 ./vcpkg.exe install bullet3:x64-windows
 cp $vcpkgDir/installed/x64-windows/lib/libxml2.lib $vcpkgDir/installed/x64-windows/lib/xml2.lib #  gettext failes without the file xml2.lib
-./vcpkg.exe install gtk3:x64-windows
+./vcpkg.exe install imgui[core,opengl3-binding,glut-binding]:x64-windows #--recurse
 cp $vcpkgDir/installed/x64-windows/lib/qhull_r.lib $vcpkgDir/installed/x64-windows/lib/qhullstatic_r.lib #  opensg expects qhullstatic_r.lib
 
 # when using vcpkg collada
@@ -185,7 +185,6 @@ if [ ! -e cef/build ]; then
 	cp -r build/libcef_dll_wrapper/Release/* $libDir/cef/
 	cp third_party/cef/*/Release/libcef.lib $libDir/cef/
 fi
-# TODO: copy pak files!
 
 #rm -rf $DIR/repositories/polyvr/ressources/cefWin/build
 cd $DIR/repositories/polyvr/ressources/cefWin
@@ -197,6 +196,8 @@ if [ ! -e build ]; then
 	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake ..
 	$cmakeExe --build . --config Release
 	cp Release/CefSubProcessWin.exe ../
+	cp $libDir/cef/*.pak $DIR/repositories/polyvr/ressources/cefWin/
+	cp $libDir/cef/locales $DIR/repositories/polyvr/ressources/cefWin/
 fi
 
 # ------------------------------------- compile OCE ----------------------------------------
