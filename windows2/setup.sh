@@ -63,8 +63,8 @@ fi
 ./vcpkg.exe install jsoncpp:x64-windows 
 ./vcpkg.exe install lapack:x64-windows       # TODO: does not compile yet, needs fortran??
 ./vcpkg.exe install libssh2:x64-windows 
+./vcpkg.exe install freeglut:x64-windows
 ./vcpkg.exe install cryptopp:x64-windows 
-./vcpkg.exe install freeglut:x64-windows      # find_package(GLUT REQUIRED)                 target_link_libraries(main PRIVATE GLUT::GLUT)
 ./vcpkg.exe install python2:x64-windows
 ./vcpkg.exe install boost:x64-windows
 ./vcpkg.exe install glew:x64-windows
@@ -75,6 +75,7 @@ fi
 ./vcpkg.exe install bullet3:x64-windows
 cp $vcpkgDir/installed/x64-windows/lib/libxml2.lib $vcpkgDir/installed/x64-windows/lib/xml2.lib #  gettext failes without the file xml2.lib
 ./vcpkg.exe install imgui[core,opengl3-binding,glut-binding]:x64-windows #--recurse
+#./vcpkg.exe install imgui[core,opengl3-binding]:x64-windows #--recurse
 cp $vcpkgDir/installed/x64-windows/lib/qhull_r.lib $vcpkgDir/installed/x64-windows/lib/qhullstatic_r.lib #  opensg expects qhullstatic_r.lib
 
 # when using vcpkg collada
@@ -116,6 +117,8 @@ fi
 #rm -rf $DIR/repositories/opensg/build
 
 echo "$cmakeExe -G \"$GENERATOR\" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$incDir/Collada -DCOLLADA_DOM_INCLUDE_DIR=$incDir/Collada/1.4 -DCOLLADA_LIBRARY_RELEASE=$libDir/collada/collada-dom2.5-dp-vc100-mt.lib -DOSG_WITH_COLLADA_NAMESPACE=ON .."
+
+# TODO: replace vcpkg freeglut.lib and freeglut.dll by the one compiled from the source in polyvr, maybe put it in a separate lib?
 
 cd $DIR/repositories
 if [ ! -e opensg/build ]; then
