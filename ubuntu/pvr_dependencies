@@ -1,3 +1,4 @@
+libpcre3-dev
 gdebi-core
 libmicrohttpd-dev
 libjsoncpp-dev
@@ -8,7 +9,8 @@ doxygen
 codeblocks 
 codeblocks-contrib
 libboost-program-options-dev 
-libboost-thread-dev 
+libboost-thread-dev
+libboost-regex-dev
 libxml++2.6-dev 
 alacarte 
 libbullet-dev
@@ -17,7 +19,6 @@ libgtkglext1-dev
 libfreenect-dev
 libglew-dev
 libsdl1.2-dev
-libgtksourceview2.0-dev
 libcgal-dev
 libusb-dev
 libusb-1.0-0-dev
@@ -34,8 +35,4 @@ libao-dev
 liblapacke-dev
 libraptor2-dev
 libbullet-extras-dev
-liboce-foundation-dev
-liboce-modeling-dev
-liboce-ocaf-dev
-liboce-visualization-dev
 texinfo
