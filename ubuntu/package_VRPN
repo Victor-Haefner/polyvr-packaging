@@ -20,7 +20,7 @@ Version: $version-1
 Section: libdevel
 Priority: extra
 Architecture: amd64
-Depends: libc6, libpython2.7
+Depends: libc6
 Installed-Size: 21200
 Homepage: http://www.cs.unc.edu/Research/vrpn/
 Maintainer: victor haefner <victor.haefner@gmail.com>
