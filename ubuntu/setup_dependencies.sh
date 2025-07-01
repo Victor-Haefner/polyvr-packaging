@@ -137,7 +137,7 @@ cd $DIR
 if [ ! -e IFC/build ]; then
   su $SUDO_USER -c "mkdir IFC/build"
   cd IFC/build
-  cmake ../cmake -DOCC_LIBRARY_DIR=/usr/lib/OCE/ -DOCC_INCLUDE_DIR=/usr/include/OCE -DCOLLADA_SUPPORT=0 -DBUILD_IFCPYTHON=0 -DPCRE_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu/ && make -j4
+  cmake ../cmake -DUSE_IFC4=ON -DOCC_LIBRARY_DIR=/usr/lib/OCE/ -DOCC_INCLUDE_DIR=/usr/include/OCE -DCOLLADA_SUPPORT=0 -DBUILD_IFCPYTHON=0 && make -j4
 fi
 fi
 
