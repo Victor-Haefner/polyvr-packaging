@@ -48,23 +48,36 @@ fi
 cd $DIR
 if [ ! -e cpython ]; then
 	echo "get cpython source"
-	git clone --branch 2.7 https://github.com/Victor-Haefner/cpython.git
+	#git clone --branch 2.7 https://github.com/Victor-Haefner/cpython.git
+	git clone --branch v3.14.1 https://github.com/python/cpython.git
 	sed -i 's/#define HAVE_POPEN      1/#undef HAVE_POPEN/g' cpython/Modules/posixmodule.c
 fi
 
-# TODO: python currently compiles with -g flag (debug)    ..test if this is still the case
 if [ ! -e cpython/build ]; then
 	echo "--- setup cpython ---"
 	cd cpython
+	mkdir buildHost && cd buildHost
+	../configure
+	make -j4
+	cd $DIR/cpython
+	
 	mkdir build && cd build
-	emconfigure ../configure --with-ensurepip=no --enable-optimizations --with-lto --with-threads=no
+	
+	cat > config.site << 'EOF'
+ac_cv_file__dev_ptmx=no
+ac_cv_file__dev_ptc=no
+EOF
+	
+	CONFIG_SITE=$(pwd)/config.site emconfigure ../configure --with-ensurepip=no --host=wasm32-unknown-emscripten --build=$(../config.guess) --with-build-python=$(pwd)/../buildHost/python --disable-ipv6
+	
+	# TODO: try with --enable-optimizations
 
 	sed -i 's/#define HAVE_PLOCK 1/#undef HAVE_PLOCK/g' pyconfig.h
 	sed -i 's/#define HAVE_INITGROUPS 1/#undef HAVE_INITGROUPS/g' pyconfig.h
 
 	touch ../Python/pythonrun.c
 	emmake make
-	cp libpython2.7.a ../../lib
+	cp a.wasm ../../lib/python.wasm
 	cp -r ../Include ../../include/Python
 	cp pyconfig.h ../../include/Python/
 fi
