@@ -131,11 +131,11 @@ if [ ! -e sqlite/build ]; then
 	echo "--- setup sqlite ---"
 	cd sqlite
 	mkdir build && cd build
-	../configure --disable-shell
-	make
-	emconfigure ../configure --disable-shell
+	
+	emconfigure ../configure --host=wasm32-unknown-emscripten --build=wasm32-unknown-emscripten --disable-readline --disable-tcl --disable-shared
 	emmake make
-	cp .libs/*.a ../../lib/
+	
+	cp *.a ../../lib/
 	mkdir ../../include/libsqlite
 	cp *.h ../../include/libsqlite/
 fi
