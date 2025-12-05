@@ -50,7 +50,6 @@ if [ ! -e cpython ]; then
 	echo "get cpython source"
 	#git clone --branch 2.7 https://github.com/Victor-Haefner/cpython.git
 	git clone --branch v3.14.1 https://github.com/python/cpython.git
-	sed -i 's/#define HAVE_POPEN      1/#undef HAVE_POPEN/g' cpython/Modules/posixmodule.c
 fi
 
 if [ ! -e cpython/build ]; then
@@ -59,25 +58,30 @@ if [ ! -e cpython/build ]; then
 	mkdir buildHost && cd buildHost
 	../configure
 	make -j4
+	
 	cd $DIR/cpython
-	
 	mkdir build && cd build
-	
-	cat > config.site << 'EOF'
+
+	# check in configure for what to disable
+cat > config.site << 'EOF'
 ac_cv_file__dev_ptmx=no
 ac_cv_file__dev_ptc=no
+
+ac_cv_func_fork=no
+ac_cv_func_vfork=no
+ac_cv_func_forkpty=no
+ac_cv_func_pipe2=no
+ac_cv_func_memfd_create=no
+ac_cv_func_posix_fallocate=no
 EOF
 	
-	CONFIG_SITE=$(pwd)/config.site emconfigure ../configure --with-ensurepip=no --host=wasm32-unknown-emscripten --build=$(../config.guess) --with-build-python=$(pwd)/../buildHost/python --disable-ipv6
+	CONFIG_SITE=$(pwd)/config.site emconfigure ../configure --with-ensurepip=no --host=wasm32-unknown-emscripten --build=$(../config.guess) --with-build-python=$(pwd)/../buildHost/python --disable-ipv6 --disable-shared
 	
 	# TODO: try with --enable-optimizations
 
-	sed -i 's/#define HAVE_PLOCK 1/#undef HAVE_PLOCK/g' pyconfig.h
-	sed -i 's/#define HAVE_INITGROUPS 1/#undef HAVE_INITGROUPS/g' pyconfig.h
-
 	touch ../Python/pythonrun.c
 	emmake make
-	cp a.wasm ../../lib/python.wasm
+	cp lib*.a ../../lib/
 	cp -r ../Include ../../include/Python
 	cp pyconfig.h ../../include/Python/
 fi
