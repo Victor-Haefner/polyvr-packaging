@@ -117,12 +117,14 @@ fi
 cd $DIR
 if [ ! -e gdal ]; then
 	echo "get gdal source"
-	git clone https://github.com/Victor-Haefner/gdal.git gdal
+	#git clone https://github.com/Victor-Haefner/gdal.git gdal
+	git clone https://github.com/OSGeo/gdal.git gdal
 fi
 
 if [ ! -e gdal/proj ]; then
 	echo "get gdal proj source"
-	git clone https://github.com/Victor-Haefner/PROJ.git gdal/proj
+	#git clone https://github.com/Victor-Haefner/PROJ.git gdal/proj
+	git clone https://github.com/OSGeo/PROJ.git gdal/proj
 fi
 
 if [ ! -e sqlite ]; then
@@ -162,6 +164,8 @@ if [ ! -e gdal/proj/build ]; then
 	cp -r ../include/proj ../../../include/libproj/
 	cp data/for_tests/proj.db ../../../include/libproj/
 fi
+
+
 
 cd $DIR	
 if [ ! -e gdal/gdal/build ]; then
