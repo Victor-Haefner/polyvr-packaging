@@ -75,13 +75,16 @@ ac_cv_func_memfd_create=no
 ac_cv_func_posix_fallocate=no
 EOF
 	
-	CONFIG_SITE=$(pwd)/config.site emconfigure ../configure --with-ensurepip=no --host=wasm32-unknown-emscripten --build=$(../config.guess) --with-build-python=$(pwd)/../buildHost/python --disable-ipv6 --disable-shared
+	CONFIG_SITE=$(pwd)/config.site emconfigure ../configure --with-ensurepip=no --host=wasm32-unknown-emscripten --build=$(../config.guess) --with-build-python=$(pwd)/../buildHost/python --disable-ipv6 --disable-shared --disable-test-modules --with-builtin-hashlib-hashes=no
 	
 	# TODO: try with --enable-optimizations
 
+	mkdir web_example
 	touch ../Python/pythonrun.c
 	emmake make
 	cp lib*.a ../../lib/
+	cp Modules/expat/lib*.a ../../lib/
+	cp Modules/_decimal/libmpdec/lib*.a ../../lib/
 	cp -r ../Include ../../include/Python
 	cp pyconfig.h ../../include/Python/
 fi
@@ -151,12 +154,7 @@ if [ ! -e gdal/proj/build ]; then
 	echo "--- setup gdal proj ---"
 	cd gdal/proj
 	mkdir build && cd build
-	cmake ../ -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0
-	make generate_proj_db
-	rm CMakeCache.txt
-	emcmake cmake ../ -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="../../../include/libtiff" -DTIFF_LIBRARY="../../../lib/libtiffxx.a" -DWITHOUT_SQLITE=1 -DSQLITE3_LIBRARY="../../../lib/libsqlite3.a" -DSQLITE3_INCLUDE_DIR="../../../include/libsqlite"
-	#emcmake cmake ../ -DWITHOUT_SQLITE=1 -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="../../../include/libtiff" -DTIFF_LIBRARY="../../../lib/libtiffxx.a"
-	# comment #define HAVE_LIBDL 1	in proj_config.h
+	emcmake cmake ../ -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="$DIR/include/libtiff" -DTIFF_LIBRARY="$DIR/lib/libtiffxx.a" -DSQLite3_LIBRARY="$DIR/lib/libsqlite3.a" -DSQLite3_INCLUDE_DIR="$DIR/include/libsqlite" -DBUILD_SHARED_LIBS=OFF
 	emmake make -j8 proj
 	cp lib/libproj.a ../../../lib/
 	cp -r ../src ../../../include/libproj
@@ -168,47 +166,68 @@ fi
 
 
 cd $DIR	
-if [ ! -e gdal/gdal/build ]; then
+if [ ! -e gdal/build ]; then
 	echo "--- setup gdal ---"
-	cd gdal/gdal # configure needs to run in this folder!
-	mkdir build # still, make the directory to make the if condition working
-	emconfigure ./configure \
-  --with-python=no \
-  --with-crypto=no \
-  --with-opencl=no \
-  --with-geos=no \
-  --with-curl=no \
-  --with-xml2=no \
-  --with-libkml=no \
-  --with-mysql=no \
-  --with-netcdf=no \
-  --with-pcraster=internal \
-  --with-pg=no \
-  --with-proj_include="-I$DIR/include/libproj" \
-  --with-proj_lib="-L$DIR/lib -lproj" \
-  --with-cryptopp=no \
-  --with-java=no \
-  --with-libjson-c=internal \
-  --with-libz=no \
-  --with-libz_include="-I$DIR/emsdk/upstream/emscripten/cache/ports-builds/zlib" \
-  --with-libz_lib="-L$DIR/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten" \
-  --with-hdf5=no \
-  --with-expat=no \
-  --with-oci=no \
-  --with-oci-lib=no \
-  --with-oci-include=no \
-  --with-geotiff=internal \
-  --with-libtiff="$DIR/include/libtiff" \
-  --with-grass=no \
-  --with-spatialite=no \
-  --with-freexl=no
-	emmake make -j8 static-lib
+	cd gdal # configure needs to run in this folder!
+	mkdir build && cd build
+  
+	emcmake cmake .. \
+	-DBUILD_SHARED_LIBS=OFF \
+	-DGDAL_BUILD_OPTIONAL_DRIVERS=OFF \
+	-DOGR_BUILD_OPTIONAL_DRIVERS=OFF \
+	-DACCEPT_MISSING_SQLITE3_MUTEX_ALLOC=ON \
+	\
+	-DGDAL_USE_PROTOBUF=OFF \
+	-DGDAL_USE_CURL=OFF \
+	-DGDAL_USE_XML2=OFF \
+	-DGDAL_USE_LIBKML=OFF \
+	-DGDAL_USE_MYSQL=OFF \
+	-DGDAL_USE_NETCDF=OFF \
+	-DGDAL_USE_GEOS=OFF \
+	-DGDAL_USE_HDF5=OFF \
+	-DGDAL_USE_EXPAT=OFF \
+	-DGDAL_USE_OCI=OFF \
+	-DGDAL_USE_PCRASTER=OFF \
+	-DGDAL_USE_LIBJSONC_INTERNAL=ON \
+	\
+	-DGDAL_USE_ZLIB=ON \
+	-DZLIB_INCLUDE_DIR="$DIR/emsdk/upstream/emscripten/cache/ports/zlib" \
+	-DZLIB_LIBRARY="$DIR/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" \
+	\
+	-DGDAL_USE_TIFF=ON \
+	-DTIFF_INCLUDE_DIR=$DIR/include/libtiff \
+	-DTIFF_LIBRARY=$DIR/lib/libtiff.a \
+	-DGDAL_USE_GEOTIFF_INTERNAL=ON \
+	\
+	-DPROJ_INCLUDE_DIR=$DIR/include/libproj \
+	-DPROJ_LIBRARY=$DIR/lib/libproj.a \
+	\
+	-DBUILD_PYTHON_BINDINGS=OFF \
+	-DBUILD_JAVA_BINDINGS=OFF \
+	-DBUILD_CSHARP_BINDINGS=OFF \
+	-DBUILD_CPP_BINDINGS=OFF \
+	-DBUILD_SWIG_PYTHON=OFF \
+	-DBUILD_SWIG_JAVA=OFF \
+	-DBUILD_SWIG_CSHARP=OFF
+
+	emmake make -j8 GDAL
 	cp libgdal.a ../../lib/
 	mkdir ../../include/gdal
 	find . -name "*.h" -exec cp {} ../../include/gdal/ \;
+	find ../gcore -name "*.h" -exec cp {} ../../include/gdal/ \;
+	find ../port -name "*.h" -exec cp {} ../../include/gdal/ \;
+	find ../ogr -name "*.h" -exec cp {} ../../include/gdal/ \;
 	cp port/cpl_config.h ../../include/gdal/ # needs to override wrong config
 	#cp port/*.h ../../include/gdal/ #test
 fi
+
+cd $DIR	
+if [ ! -e include/eigen ]; then
+	echo "get eigen source"
+	git clone https://github.com/PX4/eigen.git
+	mv eigen include/
+fi
+
 
 # --------------------- cgal   TODO: needs gmp and mpfr
 
