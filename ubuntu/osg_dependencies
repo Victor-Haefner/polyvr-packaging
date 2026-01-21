@@ -1,4 +1,3 @@
-libvrpn-dev
 libvte-dev 
 git 
 cmake 
@@ -12,10 +11,8 @@ libtiff-dev
 libpng-dev 
 libgif-dev 
 freeglut3-dev 
-libboost-filesystem-dev 
-python-dev 
+libboost-filesystem-dev
 nvidia-cg-toolkit 
-libboost-python-dev 
 libxi-dev 
 libxmu-dev 
 libboost-thread-dev 

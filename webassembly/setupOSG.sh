@@ -43,7 +43,7 @@ if [ ! -e lib/libboost_system.a ]; then
 	./bootstrap.sh --prefix=../
 	echo " ---- bootstrap done ----"
 	#./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static system thread program_options serialization filesystem regex
-	./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static system program_options serialization filesystem
+	./b2 toolset=emscripten cxxflags="-sUSE_LIBCPP=1 -O3" linkflags="-sUSE_LIBCPP=1 -O3" link=static variant=release threading=single runtime-link=static system program_options serialization filesystem
 	echo " ---- b2 done ----"
 	systemBC="$( find . -name libboost_system.bc )" 
 	filesystemBC="$( find . -name libboost_filesystem.bc )" 
@@ -91,7 +91,7 @@ if [ ! -e OpenSG/build ]; then
 	bRoot="../include/boost_headers"	
 	boost="-DBOOST_ROOT=$bRoot -DBoost_FILESYSTEM_LIBRARY_RELEASE=$bFsLib -DBoost_SYSTEM_LIBRARY_RELEASE=$bSyLib -DBoost_FILESYSTEM_LIBRARY_DEBUG=$bFsLib -DBoost_SYSTEM_LIBRARY_DEBUG=$bSyLib"
 	glut="-DGLUT_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/system/include -DGLUT_glut_LIBRARY=1 -DGLUT_Xi_LIBRARY=1 -DGLUT_Xmu_LIBRARY=1"
-	imgPng="-DPNG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libpng -DPNG_LIBRARY_RELEASE=$emsdkLibDir/libpng.a"
+	imgPng="-DPNG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libpng -DPNG_LIBRARY_RELEASE=$emsdkLibDir/libpng-mt.a"
 	imgJpg="-DJPEG_INCLUDE_DIR=$DIR/emsdk/upstream/emscripten/cache/ports-builds/libjpeg -DJPEG_LIBRARY_RELEASE=$emsdkLibDir/libjpeg.a"
 	cmd="emcmake cmake $flags $flags2 $toolchain $zlib $boost $glut $imgPng $imgJpg"
 	echo $cmd

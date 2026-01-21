@@ -25,10 +25,6 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR
 
 if [ $JOB == "ALL" ] || [ $JOB == "LIBS" ]; then
-#add_ppa irie/blender #Blender
-#add_ppa blk/ppa #Bullets
-#add_ppa panda3d/ppa #FMOD
-#add_ppa barthelemy/collada #Collada
 apt-get update
 
 osgdep="osg_dependencies"
@@ -93,7 +89,8 @@ cd $DIR
 if [ ! -e OpenSG/build ]; then
   su $SUDO_USER -c "mkdir OpenSG/build"
   cd OpenSG/build
-  cmake -DOSG_ENABLE_QHULL=OFF -DOSG_SHADER_CACHE_MODE=0 -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 .. && make -j4
+  cmake -Wno-dev -DOSG_FIELDCONTAINER_SHUTDOWN_SILENT=ON -DOSG_ENABLE_QHULL=OFF -DOSG_SHADER_CACHE_MODE=0 -DOSGBUILD_TESTS=OFF -CMAKE_DISABLE_FIND_PACKAGE_Qt5=ON -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 ..
+  make -j4
 fi
 fi
 
@@ -141,7 +138,7 @@ cd $DIR
 if [ ! -e IFC/build ]; then
   su $SUDO_USER -c "mkdir IFC/build"
   cd IFC/build
-  cmake ../cmake -DOCC_LIBRARY_DIR=/usr/lib/OCE/ -DOCC_INCLUDE_DIR=/usr/include/OCE -DCOLLADA_SUPPORT=0 -DBUILD_IFCPYTHON=0 -DPCRE_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu/ && make -j4
+  cmake ../cmake -DUSE_IFC4=ON -DOCC_LIBRARY_DIR=/usr/lib/OCE/ -DOCC_INCLUDE_DIR=/usr/include/OCE -DCOLLADA_SUPPORT=0 -DBUILD_IFCPYTHON=0 && make -j4
 fi
 fi
 

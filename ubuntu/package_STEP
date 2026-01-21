@@ -66,7 +66,13 @@ cp STEPcode/build/schemas/sdai_ap214e3/entity/*.h $d_inc_e
 cp STEPcode/include/*.h $d_inc
 cp -r STEPcode/include/express $d_inc/
 cp -r STEPcode/include/exppp $d_inc/
-cp STEPcode/src/clstepcore/complexSupport.h $d_inc/
+cp -r STEPcode/include/cldai $d_inc/
+cp -r STEPcode/include/cleditor $d_inc/
+cp STEPcode/include/cleditor/* $d_inc/
+cp -r STEPcode/include/cllazyfile $d_inc/
+cp -r STEPcode/include/clstepcore $d_inc/
+cp STEPcode/include/clstepcore/* $d_inc/
+cp -r STEPcode/include/clutils $d_inc/
 find STEPcode -name "*.so*" -exec cp {} $d_lib \;
 find $d_lib -name "*.so*" -exec chrpath -d {} \; # remove rpaths
 find $d_lib -name "*.so*" -exec objcopy --strip-debug --strip-unneeded {} {} \; # unstrip libs
