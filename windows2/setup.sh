@@ -65,7 +65,7 @@ fi
 ./vcpkg.exe install libssh2:x64-windows 
 ./vcpkg.exe install freeglut:x64-windows
 ./vcpkg.exe install cryptopp:x64-windows 
-./vcpkg.exe install python2:x64-windows
+./vcpkg.exe install python3:x64-windows
 ./vcpkg.exe install boost:x64-windows
 ./vcpkg.exe install glew:x64-windows
 ./vcpkg.exe install eigen3:x64-windows
@@ -130,7 +130,7 @@ if [ ! -e opensg/build ]; then
 	#$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5 -DCOLLADA_DOM_INCLUDE_DIR=$vcpkgDir/installed/x64-windows/include/collada-dom2.5/1.4 -DOSG_WITH_COLLADA_NAMESPACE=ON ..
 	
 	# with collada from repo
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$incDir/Collada -DCOLLADA_DOM_INCLUDE_DIR=$incDir/Collada/1.4 -DCOLLADA_LIBRARY_RELEASE=$libDir/collada/collada-dom2.5-dp-vc100-mt.lib -DOSG_WITH_COLLADA_NAMESPACE=ON ..
+	$cmakeExe -G "$GENERATOR" -DOSG_FIELDCONTAINER_SHUTDOWN_SILENT=TRUE -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DOSGBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCOLLADA_DAE_INCLUDE_DIR=$incDir/Collada -DCOLLADA_DOM_INCLUDE_DIR=$incDir/Collada/1.4 -DCOLLADA_LIBRARY_RELEASE=$libDir/collada/collada-dom2.5-dp-vc100-mt.lib -DOSG_WITH_COLLADA_NAMESPACE=ON ..
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/OpenSG/
@@ -245,7 +245,7 @@ if [ ! -e ifc/build ]; then
 	cd ifc/build
 	
 	
-	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCC_INCLUDE_DIR=$incDir/OCE -DOCC_LIBRARY_DIR=$libDir/oce -DUNICODE_SUPPORT=ON -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON ../cmake
+	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release -DOCC_INCLUDE_DIR=$incDir/OCE -DOCC_LIBRARY_DIR=$libDir/oce -DUNICODE_SUPPORT=ON -DCOLLADA_SUPPORT=OFF -DBUILD_IFCPYTHON=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DUSE_IFC4=ON ../cmake
 	$cmakeExe --build . --config Release
 
 	d_inc=$incDir/IFC/
