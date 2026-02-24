@@ -121,13 +121,13 @@ cd $DIR
 if [ ! -e gdal ]; then
 	echo "get gdal source"
 	#git clone https://github.com/Victor-Haefner/gdal.git gdal
-	git clone https://github.com/OSGeo/gdal.git gdal
+	git clone --branch v3.12.1RC1 https://github.com/OSGeo/gdal.git gdal
 fi
 
 if [ ! -e gdal/proj ]; then
 	echo "get gdal proj source"
 	#git clone https://github.com/Victor-Haefner/PROJ.git gdal/proj
-	git clone https://github.com/OSGeo/PROJ.git gdal/proj
+	git clone --branch 9.7.1 https://github.com/OSGeo/PROJ.git gdal/proj
 fi
 
 if [ ! -e sqlite ]; then
@@ -156,6 +156,8 @@ if [ ! -e gdal/proj/build ]; then
 	mkdir build && cd build
 	emcmake cmake ../ -DENABLE_CURL=0 -DBUILD_TESTING=0 -DBUILD_PROJSYNC=0 -DTIFF_INCLUDE_DIR="$DIR/include/libtiff" -DTIFF_LIBRARY="$DIR/lib/libtiffxx.a" -DSQLite3_LIBRARY="$DIR/lib/libsqlite3.a" -DSQLite3_INCLUDE_DIR="$DIR/include/libsqlite" -DBUILD_SHARED_LIBS=OFF
 	emmake make -j8 proj
+	
+	rm -rf ../../../include/libproj
 	cp lib/libproj.a ../../../lib/
 	cp -r ../src ../../../include/libproj
 	cp src/*.h ../../../include/libproj/
