@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6.0)
+cmake_minimum_required (VERSION 3.5)
 project (collada-dom)
 set( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
 
@@ -87,7 +87,7 @@ if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
 endif()
 
 if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2")# -DNDEBUG -DBOOST_DISABLE_ASSERTS -D_SECURE_SCL=0") # this practically removes all checks making it a very dangerous options to play with
+  set(CMAKE_CXX_FLAGS_RELEASE "-O2")# -DNDEBUG -D_SECURE_SCL=0") # this practically removes all checks making it a very dangerous options to play with
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
   set(CMAKE_CXX_FLAGS_DEBUG "-g -D_DEBUG")
 endif()
@@ -107,46 +107,6 @@ set(COLLADA_DOM_INCLUDE_INSTALL_DIR "include/collada-dom")
 
 set(COLLADA_DOM_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dom/include)
 set(COLLADA_DOM_LINK_DIRS "")
-
-if( MSVC )
-  # force multi-threaded DLL boost
-  set(Boost_USE_MULTITHREAD ON)
-  set(Boost_USE_STATIC_LIBS OFF)
-  set(Boost_USE_STATIC_RUNTIME OFF)
-  set(Boost_CFLAGS "-DBOOST_ALL_DYN_LINK -DBOOST_ALL_NO_LIB")
-endif()
-  
-set(Boost_ADDITIONAL_VERSIONS "1.46" "1.45" "1.44" "1.43" "1.42" "1.41" "1.40" "1.39" "1.38" "1.37.0" "1.37" "1.35.0" "1.34.1" "1.34.0" "1.34" "1.33.1" "1.33.0" "1.33")
-
-if( NOT $ENV{BOOST_INCLUDEDIR} STREQUAL "" )
-  set(Boost_INCLUDE_DIR $ENV{BOOST_INCLUDEDIR})
-endif()
-if( NOT $ENV{BOOST_LIBRARYDIR} STREQUAL "" )
-  set(Boost_LIBRARY_DIRS $ENV{BOOST_LIBRARYDIR})
-endif()
-find_package(Boost COMPONENTS filesystem system REQUIRED)
-
-message(STATUS "found boost version: ${Boost_VERSION}")
-
-if( Boost_FOUND )
-  include_directories(${Boost_INCLUDE_DIRS})
-  set(COLLADA_DOM_LINK_DIRS ${COLLADA_DOM_LINK_DIRS} ${Boost_LIBRARY_DIRS})
-elseif(Boost_VERSION AND NOT "${Boost_VERSION}" STREQUAL "0")
-  include_directories(${Boost_INCLUDE_DIRS})
-  set(COLLADA_DOM_LINK_DIRS ${COLLADA_DOM_LINK_DIRS} ${Boost_LIBRARY_DIRS})
-else()
-  message(FATAL_ERROR "Could not find boost libraries!")
-endif()
-
-set(COLLADA_DOM_BOOST_INCLUDE_DIRS)
-foreach(idir ${Boost_INCLUDE_DIRS})
-  set(COLLADA_DOM_BOOST_INCLUDE_DIRS "${COLLADA_DOM_BOOST_INCLUDE_DIRS} -I${idir}")
-endforeach()
-
-set(COLLADA_DOM_BOOST_LIB_DIRS)
-foreach(ldir ${Boost_LIBRARY_DIRS})
-  set(COLLADA_DOM_BOOST_LIB_DIRS "${COLLADA_DOM_BOOST_LIB_DIRS} -L${ldir}")
-endforeach()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   set(EXTRA_COMPILE_FLAGS "-fPIC")
@@ -194,32 +154,10 @@ else()
   set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dom/external-libs/minizip-1.1 ${ZLIB_INCLUDE_DIR})
 endif()
 
-pkg_check_modules(libpcrecpp libpcrecpp)
-if( libpcrecpp_FOUND )
-  set(CMAKE_REQUIRED_INCLUDES ${libpcrecpp_INCLUDE_DIRS})
-  check_include_file_cxx(pcrecpp.h HAVE_PCRECPP_H)
-  set(CMAKE_REQUIRED_INCLUDES)
-  if( NOT HAVE_PCRECPP_H )
-    set(libpcrecpp_FOUND 0)
-  endif()
-endif()
-
-if( NOT libpcrecpp_FOUND )
-  message(STATUS "System pcre not found, using local from sources")
-  # include the local pcre
-  add_subdirectory(dom/external-libs/pcre-8.02)
-  set(libpcrecpp_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dom/external-libs/pcre-8.02)
-  set(libpcrecpp_LIBRARY_DIRS)
-  set(libpcrecpp_LIBRARIES pcrecpp_local)
-  set(libpcrecpp_CFLAGS_OTHERS "-DPCRE_STATIC")
-  set(libpcrecpp_LDFLAGS_OTHERS)
-endif()
-
 # declare minizip/zlib before libxml2! (for some reason the precompiled libxml2 libraries have zlib.h/zconf.h)
 include_directories(BEFORE ${MINIZIP_INCLUDE_DIR})
-include_directories(BEFORE ${libpcrecpp_INCLUDE_DIRS})
 
-set(COLLADA_DOM_LINK_DIRS ${COLLADA_DOM_LINK_DIRS} ${libpcrecpp_LIBRARY_DIRS})
+set(COLLADA_DOM_LINK_DIRS ${COLLADA_DOM_LINK_DIRS})
 link_directories(${COLLADA_DOM_LINK_DIRS})
 
 add_subdirectory(dom)
@@ -268,7 +206,7 @@ if(CMAKE_CPACK_COMMAND AND UNIX AND OPT_BUILD_PACKAGES)
 
   set(CPACK_COMPONENT_${COMPONENT_PREFIX_UPPER}DOM-DEV_DISPLAY_NAME "common headers and installs")
   
-  set(CPACK_DEBIAN_BUILD_DEPENDS debhelper cmake libxml2-dev libboost-dev libpcre3-dev zlib1g-dev libboost-filesystem-dev libboost-system-dev libpcre3-dev pkg-config)
+  set(CPACK_DEBIAN_BUILD_DEPENDS debhelper cmake libxml2-dev zlib1g-dev pkg-config)
 
   # debian
   set(CPACK_DEBIAN_PACKAGE_PRIORITY optional)
@@ -276,7 +214,7 @@ if(CMAKE_CPACK_COMMAND AND UNIX AND OPT_BUILD_PACKAGES)
   set(CPACK_DEBIAN_PACKAGE_DEPENDS ${CPACK_COMPONENTS_ALL})
   set(CPACK_DEBIAN_PACKAGE_SUGGESTS)
   set(CPACK_DEBIAN_PACKAGE_NAME collada-dom)
-  set(CPACK_DEBIAN_PACKAGE_REMOVE_SOURCE_FILES viewer fx rt Makefile.linux Makefile dom/codeGen dom/Makefile dom/external-libs/boost dom/external-libs/libxml2 dom/external-libs/minizip dom/external-libs/pcre dom/external-libs/pcre-8.02 dom/external-libs/zlib-1.2.5 dom/test dom/release dom/projects dom/make)
+  set(CPACK_DEBIAN_PACKAGE_REMOVE_SOURCE_FILES viewer fx rt Makefile.linux Makefile dom/codeGen dom/Makefile dom/external-libs/libxml2 dom/external-libs/minizip dom/external-libs/pcre dom/external-libs/pcre-8.02 dom/external-libs/zlib-1.2.5 dom/test dom/release dom/projects dom/make)
   set(CPACK_DEBIAN_PACKAGE_SOURCE_COPY svn export --force)
   set(CPACK_DEBIAN_CHANGELOG)
   execute_process(COMMAND lsb_release -is

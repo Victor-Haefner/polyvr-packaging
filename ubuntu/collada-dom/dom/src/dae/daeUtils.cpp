@@ -17,11 +17,10 @@
 #include <unistd.h>  // for getcwd (linux)
 #endif
 
-#ifndef NO_BOOST
-#include <boost/filesystem/convenience.hpp>       // THIS WAS NOT COMMENTED.
-#endif
-
 #include <cstdio> // for tmpnam
+
+#include <filesystem>
+namespace fs = std::filesystem;
 
 using namespace std;
 
@@ -148,7 +147,7 @@ char cdom::getFileSeparator() {
     }
     return '/';
 }
-#ifndef NO_BOOST
+
 const string& cdom::getSystemTmpDir() {
 #ifdef WIN32
     static string tmpDir = string(getenv("TMP")) + getFileSeparator();
@@ -190,10 +189,9 @@ const string& cdom::getSafeTmpDir() {
     static string tmpDir;
     do {
         tmpDir = getSystemTmpDir() + getRandomFileName() + getFileSeparator();
-    } while(boost::filesystem::is_directory(tmpDir));
+    } while(fs::is_directory(tmpDir));
     return tmpDir;
 }
-#endif //NO_BOOST
 
 int cdom::strcasecmp(const char* str1, const char* str2) {
 #ifdef _MSC_VER

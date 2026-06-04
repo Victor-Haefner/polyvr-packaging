@@ -13,7 +13,6 @@
 #include <dae/daeDocument.h>
 #include <dae/daeErrorHandler.h>
 #include <dae/daeUtils.h>
-#include <pcrecpp.h>
 
 using namespace std;
 using namespace cdom;
@@ -127,25 +126,10 @@ namespace {
 	               /* out */ string& dir,
 	               /* out */ string& baseName,
 	               /* out */ string& extension) {
-		// !!!steveT Currently, if we have a file name that begins with a '.', as in
-		// ".emacs", that will be treated as having no base name with an extension
-		// of ".emacs". We might want to change this behavior, so that the base name
-		// is considered ".emacs" and the extension is empty. I think this is more
-		// in line with what path parsers in other libraries/languages do, and it
-		// more accurately reflects the intended structure of the file name.
-
-        // The following implementation cannot handle paths like this:
-        // /tmp/se.3/file
-        //static pcrecpp::RE re("(.*/)?([^.]*)?(\\..*)?");
-		//dir = baseName = extension = "";
-		//re.FullMatch(path, &dir, &baseName, &extension);
-
-        static pcrecpp::RE findDir("(.*/)?(.*)?");
-        static pcrecpp::RE findExt("([^.]*)?(\\..*)?");
-        string tmpFile;
-        dir = baseName = extension = tmpFile = "";
-        findDir.PartialMatch(path, &dir, &tmpFile);
-        findExt.PartialMatch(tmpFile, &baseName, &extension);
+		fs::path p(path);
+		dir = p.parent_path().string();
+		baseName = p.stem().string();
+		extension = p.extension().string();
 	}
 }
 
@@ -702,14 +686,39 @@ bool cdom::parseUriRef(const string& uriRef,
                        string& path,
                        string& query,
                        string& fragment) {
-	// This regular expression for parsing URI references comes from the URI spec:
-	//   http://tools.ietf.org/html/rfc3986#appendix-B
-	static pcrecpp::RE re("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-	string s1, s3, s6, s8;
-	if (re.FullMatch(uriRef, &s1, &scheme, &s3, &authority, &path, &s6, &query, &s8, &fragment))
-		return true;
 
-	return false;
+	scheme = authority = path = query = fragment = "";
+    
+	size_t fragPos = uriRef.find('#'); // 1. fragment (#)
+	if (fragPos != string::npos) fragment = uriRef.substr(fragPos + 1);
+	string main = uriRef.substr(0, fragPos);
+
+	size_t queryPos = main.find('?'); // 2. query (?)
+	if (queryPos != string::npos) {
+		query = main.substr(queryPos + 1);
+		main = main.substr(0, queryPos);
+	}
+
+	size_t schemePos = main.find(':'); // 3. scheme (: before any /?#)
+	size_t slashPos  = main.find('/');
+	if (schemePos != string::npos && (slashPos == string::npos || schemePos < slashPos)) {
+		scheme = main.substr(0, schemePos);
+		main = main.substr(schemePos + 1);
+	}
+
+	if (main.rfind("//", 0) == 0) { // 4. authority (//...)
+		main = main.substr(2);
+		size_t authEnd = main.find('/');
+		if (authEnd != string::npos) {
+			authority = main.substr(0, authEnd);
+			path = main.substr(authEnd);
+		} else {
+			authority = main;
+			path = "";
+		}
+	} else path = main;
+
+	return true;
 }
 
 namespace {

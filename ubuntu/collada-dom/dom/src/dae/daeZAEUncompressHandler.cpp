@@ -40,7 +40,7 @@ const std::string& daeZAEUncompressHandler::obtainRootFilePath()
     if (!isZipFile())
         return EMPTY_STRING;
 
-    if (boost::filesystem::create_directories(mTmpDir))
+    if (fs::create_directories(mTmpDir))
     {
         if (extractArchive(mZipFile, mTmpDir))
         {
@@ -63,7 +63,7 @@ const std::string& daeZAEUncompressHandler::obtainRootFilePath()
         daeErrorHandler::get()->handleError("Error creating tmp dir in daeZAEUncompressHandler::obtainRootFilePath\n");
     }
 
-    boost::filesystem::remove_all(this->getTmpDir());
+    fs::remove_all(this->getTmpDir());
     return EMPTY_STRING;
 }
 
@@ -192,7 +192,7 @@ bool daeZAEUncompressHandler::extractFile( unzFile zipFile,  const std::string& 
     {
         if ( currentFileName[ strlen(currentFileName)-1 ] == '/')
         {
-            if (!boost::filesystem::create_directories(destDir + currentFileName))
+            if (!fs::create_directories(destDir + currentFileName))
             {
                 daeErrorHandler::get()->handleError("Error creating dir from zip archive in daeZAEUncompressHandler::extractFile\n");
                 error = true;
@@ -267,12 +267,12 @@ bool daeZAEUncompressHandler::checkAndExtractInternalArchive( const std::string&
 
     bool error = false;
 
-    boost::filesystem::path archivePath(filePath);
-    std::string dir = archivePath.branch_path().string();
+    fs::path archivePath(filePath);
+    std::string dir = archivePath.parent_path().string();
 
     const std::string& randomSegment = cdom::getRandomFileName();
     std::string tmpDir = dir + cdom::getFileSeparator() + randomSegment + cdom::getFileSeparator();
-    if (boost::filesystem::create_directory(tmpDir))
+    if (fs::create_directory(tmpDir))
     {
         if (!extractArchive(zipFile, tmpDir))
         {
@@ -290,9 +290,9 @@ bool daeZAEUncompressHandler::checkAndExtractInternalArchive( const std::string&
 
     if (!error)
     {
-        if (boost::filesystem::remove(archivePath))
+        if (fs::remove(archivePath))
         {
-            boost::filesystem::rename(tmpDir, archivePath);
+            fs::rename(tmpDir, archivePath);
         }
         else
         {
