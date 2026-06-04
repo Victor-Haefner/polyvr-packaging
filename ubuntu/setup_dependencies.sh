@@ -24,29 +24,25 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR
 
-if [ $JOB == "ALL" ] || [ $JOB == "LIBS" ]; then
-apt-get update
+install_packages() {
+    local pkgfile="$1"
+    echo ""
+    echo "install packages from $1 .."
 
-osgdep="osg_dependencies"
-pvrdep="pvr_dependencies"
+    while IFS= read -r line; do
+        apt-get -fy install "$line" > /dev/null
+
+        if [ $? -eq 0 ]; then
+            echo "$line installed"
+        fi
+    done < "$pkgfile"
+}
 
 if [ $JOB == "ALL" ]; then
-while read line
-do
-apt-get -fy install $line > /dev/null
-if [ $? == 0 ]; then
-echo " " $line installed
-fi
-done <$osgdep
-
-while read line
-do
-apt-get -fy install $line > /dev/null
-if [ $? == 0 ]; then
-echo " " $line installed
-fi
-done <$pvrdep
-fi
+apt-get update
+install_packages "packages_base"
+install_packages "packages_osg"
+install_packages "packages_pvr"
 fi
 
 # compile COLLADA

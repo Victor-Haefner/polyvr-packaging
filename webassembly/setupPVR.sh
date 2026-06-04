@@ -43,6 +43,27 @@ if [ ! -e libxml2/build ]; then
 	cp include/libxml/xmlversion.h ../../include/libxml2/libxml/
 fi
 
+# --------------------- sqlite3
+
+if [ ! -e sqlite ]; then
+	echo "get sqlite proj source"
+	git clone https://github.com/sqlite/sqlite.git sqlite
+fi
+
+cd $DIR	
+if [ ! -e sqlite/build ]; then
+	echo "--- setup sqlite ---"
+	cd sqlite
+	mkdir build && cd build
+	
+	emconfigure ../configure --host=wasm32-unknown-emscripten --build=wasm32-unknown-emscripten --disable-readline --disable-tcl --disable-shared
+	emmake make
+	
+	cp *.a ../../lib/
+	mkdir ../../include/libsqlite
+	cp *.h ../../include/libsqlite/
+fi
+
 # --------------------- python c api
 
 cd $DIR
@@ -54,6 +75,11 @@ fi
 
 if [ ! -e cpython/build ]; then
 	echo "--- setup cpython ---"
+	#export CFLAGS="-I$DIR/include/libsqlite"
+	#export LDFLAGS="-L$DIR/lib -lsqlite3"
+	export LIBSQLITE3_CFLAGS="-I$DIR/include/libsqlite"
+	export LIBSQLITE3_LIBS="-L$DIR/lib -lsqlite3"
+	
 	cd cpython
 	mkdir buildHost && cd buildHost
 	../configure
@@ -75,7 +101,7 @@ ac_cv_func_memfd_create=no
 ac_cv_func_posix_fallocate=no
 EOF
 	
-	CONFIG_SITE=$(pwd)/config.site emconfigure ../configure --with-ensurepip=no --host=wasm32-unknown-emscripten --build=$(../config.guess) --with-build-python=$(pwd)/../buildHost/python --disable-ipv6 --disable-shared --disable-test-modules --with-builtin-hashlib-hashes=no
+	CONFIG_SITE=$(pwd)/config.site emconfigure ../configure --with-system-sqlite --with-ensurepip=no --host=wasm32-unknown-emscripten --build=$(../config.guess) --with-build-python=$(pwd)/../buildHost/python --disable-ipv6 --disable-shared --disable-test-modules --with-builtin-hashlib-hashes=no
 	
 	# TODO: try with --enable-optimizations
 
@@ -128,25 +154,6 @@ if [ ! -e gdal/proj ]; then
 	echo "get gdal proj source"
 	#git clone https://github.com/Victor-Haefner/PROJ.git gdal/proj
 	git clone --branch 9.7.1 https://github.com/OSGeo/PROJ.git gdal/proj
-fi
-
-if [ ! -e sqlite ]; then
-	echo "get sqlite proj source"
-	git clone https://github.com/sqlite/sqlite.git sqlite
-fi
-
-cd $DIR	
-if [ ! -e sqlite/build ]; then
-	echo "--- setup sqlite ---"
-	cd sqlite
-	mkdir build && cd build
-	
-	emconfigure ../configure --host=wasm32-unknown-emscripten --build=wasm32-unknown-emscripten --disable-readline --disable-tcl --disable-shared
-	emmake make
-	
-	cp *.a ../../lib/
-	mkdir ../../include/libsqlite
-	cp *.h ../../include/libsqlite/
 fi
 
 cd $DIR

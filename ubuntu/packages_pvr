@@ -1,21 +1,7 @@
-libpcre3-dev
-gdebi-core
 libmicrohttpd-dev
 libjsoncpp-dev
-glade 
-libvte-dev 
-blender 
-doxygen 
-codeblocks 
-codeblocks-contrib
-libboost-program-options-dev 
-libboost-thread-dev
-libboost-regex-dev
-libxml++2.6-dev 
-alacarte 
+libxml++2.6-dev
 libbullet-dev
-libgtkmm-2.4-dev
-libgtkglext1-dev
 libfreenect-dev
 libglew-dev
 libsdl1.2-dev
@@ -28,7 +14,6 @@ python3-numpy
 libavcodec-dev
 libavformat-dev
 libswscale-dev
-gitk
 libqrencode-dev
 libudev-dev
 dpkg-dev
@@ -36,4 +21,3 @@ libao-dev
 liblapacke-dev
 libraptor2-dev
 libbullet-extras-dev
-texinfo
