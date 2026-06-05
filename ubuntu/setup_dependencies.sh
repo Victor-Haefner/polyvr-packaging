@@ -85,7 +85,7 @@ cd $DIR
 if [ ! -e OpenSG/build ]; then
   su $SUDO_USER -c "mkdir OpenSG/build"
   cd OpenSG/build
-  cmake -Wno-dev -DOSG_FIELDCONTAINER_SHUTDOWN_SILENT=ON -DOSG_ENABLE_QHULL=OFF -DOSG_SHADER_CACHE_MODE=0 -DOSGBUILD_TESTS=OFF -CMAKE_DISABLE_FIND_PACKAGE_Qt5=ON -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 ..
+  cmake -Wno-dev -DOSG_FIELDCONTAINER_SHUTDOWN_SILENT=ON -DOSG_ENABLE_QHULL=OFF -DOSG_SHADER_CACHE_MODE=0 -DOSGBUILD_TESTS=OFF -DCMAKE_DISABLE_FIND_PACKAGE_Qt5=ON -DCMAKE_BUILD_TYPE=Release -DCOLLADA_LIBRARY_RELEASE=../../collada-dom/build/install/usr/local/lib/libcollada14dom.so -DCOLLADA_DAE_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom -DCOLLADA_DOM_INCLUDE_DIR=../../collada-dom/build/install/usr/local/include/collada-dom/1.4 ..
   make -j4
 fi
 fi
@@ -150,7 +150,7 @@ cd $DIR
 if [ ! -e OPCUA/build ]; then
   su $SUDO_USER -c "mkdir OPCUA/build"
   cd OPCUA/build
-  cmake -DSSL_SUPPORT_MBEDTLS=OFF .. && make -j4
+  cmake -DSSL_SUPPORT_MBEDTLS=OFF -DBUILD_CLIENT=OFF -DBUILD_SERVER=OFF -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF .. && make -j4
 fi
 fi
 
