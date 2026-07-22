@@ -48,6 +48,7 @@ if [ ! -e vcpkg.exe ]; then
 fi
 
 ./vcpkg.exe integrate install
+#./vcpkg.exe install mimalloc:x64-windows	# being tested
 ./vcpkg.exe install zlib:x64-windows          # find_package(ZLIB REQUIRED)                 target_link_libraries(main PRIVATE ZLIB::ZLIB)
 ./vcpkg.exe install libpng:x64-windows        # find_package(libpng CONFIG REQUIRED)        target_link_libraries(main PRIVATE png)
 ./vcpkg.exe install libjpeg-turbo:x64-windows # find_package(JPEG REQUIRED)                 target_link_libraries(main PRIVATE ${JPEG_LIBRARIES})         target_include_directories(main PRIVATE ${JPEG_INCLUDE_DIR})
@@ -74,8 +75,7 @@ fi
 #./vcpkg.exe install collada-dom:x64-windows   # segfaults in DAE::open, building from source down below
 ./vcpkg.exe install bullet3:x64-windows
 cp $vcpkgDir/installed/x64-windows/lib/libxml2.lib $vcpkgDir/installed/x64-windows/lib/xml2.lib #  gettext failes without the file xml2.lib
-./vcpkg.exe install imgui[core,opengl3-binding,glut-binding]:x64-windows #--recurse
-#./vcpkg.exe install imgui[core,opengl3-binding]:x64-windows #--recurse
+#./vcpkg.exe install imgui[core,opengl3-binding,glut-binding]:x64-windows #--recurse
 cp $vcpkgDir/installed/x64-windows/lib/qhull_r.lib $vcpkgDir/installed/x64-windows/lib/qhullstatic_r.lib #  opensg expects qhullstatic_r.lib
 
 # when using vcpkg collada
@@ -288,6 +288,7 @@ if [ ! -e polyvr/build ]; then
 	
 	$cmakeExe -G "$GENERATOR" -DCMAKE_TOOLCHAIN_FILE=$vcpkgDir/scripts/buildsystems/vcpkg.cmake ..
 	$cmakeExe --build . --config Release
+	#$cmakeExe --build . --config RelWithDebInfo
 fi
 
 cd $DIR/repositories/polyvr/src/cluster
